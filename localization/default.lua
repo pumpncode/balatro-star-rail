@@ -655,6 +655,30 @@ return { --remind me to work on this
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
             },
+	    ["j_hsr_Hook1"] = {
+                name = "Hook",
+                text = {
+                    "When hand is played, inflicts {C:attention}Burn{} on a random",
+                    "card and its adjacent cards in hand",
+                    "Retriggers played cards inflicted with {C:attention}Burn{}
+                }
+            },
+            ["j_hsr_Hook2"] = {
+                name = "Hook",
+                text = {
+                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}When {}{C:attention,s:0.7,E:2}Attack{}{s:0.7} is triggered, 1 in 2 for each adjacent card with {}{C:attention,s:0.7}Shock{}{s:0.7} to give {}{s:0.7,C:mult}+15{}{s:0.7} Mult{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}Everytime Serval inflicts {}{C:attention,s:0.7}Shock{}{s:0.7}, increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5% up to 5 times{}",
+                    '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5%{}',
+                    '{C:inactive,s:0.8}(Eidolon 4){}'.." {C:attention,E:2,s:0.7}Ultimate{}{s:0.7} has a fixed 50% to reduce {}{C:attention,s:0.7}DEF{}{s:0.7} by 10%{}",
+                    '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 7%{}',
+                    '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Attack{}{s:0.7} gives 30% more Mult{}",
+                    'Current Eidolon: {C:mult}#1#{}',
+                    'Type: {C:mult}#2#{}',
+                    'Element: {C:mult}#3#{}',
+                    '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
+                    '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
+                }
+            },
         },
         Other = {
             hsr_pc_debuff = {
