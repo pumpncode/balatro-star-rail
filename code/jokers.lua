@@ -2449,7 +2449,7 @@ SMODS.Joker{ --Natasha
             for i = 1,ultTime do
                if card.ability.extra.ultCooldown >= card.ability.extra.ultRequiredCooldown then
                   card.ability.extra.ultCooldown = card.ability.extra.ultCooldown - card.ability.extra.ultRequiredCooldown
-                  G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + (1 + selfRetriggers)
+                  G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + 1
                   if card.ability.extra.currentEidolon >= 2 then
                      buffJoker(card,card,"natasha_e2_temp")
                   end
