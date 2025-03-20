@@ -660,7 +660,7 @@ return { --remind me to work on this
                 text = {
                     "When hand is played, inflicts {C:attention}Burn{} on a random",
                     "card and its adjacent cards in hand",
-                    "Retriggers played cards inflicted with {C:attention}Burn{}
+                    "Retriggers played cards inflicted with {C:attention}Burn{}"
                 }
             },
             ["j_hsr_Hook2"] = {
