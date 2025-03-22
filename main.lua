@@ -1052,7 +1052,7 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
     elseif joker_to_main_mode == 2 then
         local ate = false
 
-        if og_edition and not existingJoker:get_edition() then
+        if og_edition and existingJoker and not existingJoker:get_edition() then
             ate = true
             existingJoker:set_edition(og_edition,true)
         end
