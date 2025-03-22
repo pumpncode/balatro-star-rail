@@ -997,6 +997,14 @@ end
 
 BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Area
     local card = j
+    local existingJoker = nil
+    for _,v in ipairs(G.jokers.cards) do
+        if v.config.center.key == card.config.center.key then
+            existingJoker = v
+            break
+        end
+    end
+
     local exists = false
     for i,v in pairs(G.hsr_gacha_results_area.cards) do
         if v == card then
@@ -1006,6 +1014,8 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
     end
     if not exists then return end
     if #G.jokers.cards >= G.jokers.config.card_limit and joker_to_main_mode == 1 then return end
+    if joker_to_main_mode == 2 and not existingJoker and #G.jokers.cards >= G.jokers.config.card_limit then return end
+    if joker_to_main_mode == 2 and existingJoker and existingJoker.ability.extra.currentEidolon >= 6 and (existingJoker:get_edition() or (not existingJoker:get_edition() and not card:get_edition())) then return end
     
     local og_edition = nil
     if card:get_edition() and card.edition.key then
@@ -1040,21 +1050,16 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
             dup:set_edition(og_edition,true)
         end
     elseif joker_to_main_mode == 2 then
-        local existingJoker = nil
-        for _,v in ipairs(G.jokers.cards) do
-            if v.config.center.key == card.config.center.key then
-                existingJoker = v
-                break
-            end
+        local ate = false
+
+        if og_edition and not existingJoker:get_edition() then
+            ate = true
+            existingJoker:set_edition(og_edition,true)
         end
 
         if existingJoker and existingJoker.ability.extra.currentEidolon < 6 then
             existingJoker.ability.extra.currentEidolon = existingJoker.ability.extra.currentEidolon + 1
-
-            if og_edition and not existingJoker:get_edition() then
-                existingJoker:set_edition(og_edition,true)
-            end
-        else
+        elseif not ate then --No.
             local dup = SMODS.create_card({set = 'Joker', area = BalatroSR.hsr_gacha_results_area, skip_materialize = true, key = "j_hsr_"..cardName, no_edition = true})
             dup:add_to_deck()
             G.jokers:emplace(dup)
@@ -1438,12 +1443,30 @@ end
 
 G.FUNCS.hsr_can_to_joker = function(e) --Checking whether you can add Jokers from Gacha Results to Joker Area.
     local card = e.config.ref_table
-    if #G.jokers.cards < G.jokers.config.card_limit then
-        e.config.colour = G.C.UI.BACKGROUND_DARK
-        e.config.button = 'hsr_to_joker'
-    else
-        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
-        e.config.button = nil
+    if joker_to_main_mode == 1 then
+        if #G.jokers.cards < G.jokers.config.card_limit then
+            e.config.colour = G.C.UI.BACKGROUND_DARK
+            e.config.button = 'hsr_to_joker'
+        else
+            e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+            e.config.button = nil
+        end
+    elseif joker_to_main_mode == 2 then
+        local findJoker = nil
+        for _,v in ipairs(G.jokers.cards or {}) do
+            if isHSRJoker(v) and v.config.center.key == card.config.center.key then
+                findJoker = v
+                break
+            end
+        end
+
+        if (findJoker and findJoker.ability.extra.currentEidolon < 6) or (findJoker and not findJoker:get_edition() and card:get_edition()) or (#G.jokers.cards < G.jokers.config.card_limit and not findJoker) then
+            e.config.colour = G.C.UI.BACKGROUND_DARK
+            e.config.button = 'hsr_to_joker'
+        else
+            e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+            e.config.button = nil
+        end
     end
 end
 
