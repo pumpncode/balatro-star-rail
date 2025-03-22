@@ -9,9 +9,6 @@
     "badge_text_colour": "FFFFFF",
     "display_name": "Star Rail",
     "version": "1.0.0",
-    "conflicts": [
-        "Talisman"
-    ],
     "dependencies": [
         "Steamodded (>=1.0.0~ALPHA-0321b)"
     ]
