@@ -13,6 +13,10 @@ local allFiles = {
     ["code"] = {"bepis_shenanigans", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
 } --Same goes with this.
 
+local joker_to_main_mode = 2 
+--Mode 1: Normal mode, add Joker to the Joker area, which will be consumed after shop.
+--Mode 2: Experimental mode, Joker in Joker area immediately consumes added jokers if possible for Eidolon. 
+
 local hsrText = { --The core of EVERYTHING.
     RelicSetEffects = {
         ["2pcs"] = {
@@ -674,6 +678,7 @@ local hsrText = { --The core of EVERYTHING.
             Hook = {
                 type = "Destruction",
                 element = "Fire",
+                mult = 0,
             },
             Gepard = {
                 type = "Preservation",
@@ -1007,8 +1012,6 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
 
     local cardName = string.gsub(card.ability.name,string.sub(card.ability.name,1,6),"")
 
-    local dup = SMODS.create_card({set = 'Joker', area = BalatroSR.hsr_gacha_results_area, skip_materialize = true, key = "j_hsr_"..cardName, no_edition = true})
-
     G.E_MANAGER:add_event(Event({
         func = function()
             play_sound('tarot1')
@@ -1027,10 +1030,36 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
         end
     })) 
 
-    dup:add_to_deck()
-    G.jokers:emplace(dup)
-    if og_edition then
-        dup:set_edition(og_edition,true)
+    if joker_to_main_mode == 1 then
+        local dup = SMODS.create_card({set = 'Joker', area = BalatroSR.hsr_gacha_results_area, skip_materialize = true, key = "j_hsr_"..cardName, no_edition = true})
+        dup:add_to_deck()
+        G.jokers:emplace(dup)
+        if og_edition then
+            dup:set_edition(og_edition,true)
+        end
+    elseif joker_to_main_mode == 2 then
+        local existingJoker = nil
+        for _,v in ipairs(G.jokers.cards) do
+            if v.config.center.key == card.config.center.key then
+                existingJoker = v
+                break
+            end
+        end
+
+        if existingJoker and existingJoker.ability.extra.currentEidolon < 6 then
+            existingJoker.ability.extra.currentEidolon = existingJoker.ability.extra.currentEidolon + 1
+
+            if og_edition and not existingJoker:get_edition() then
+                existingJoker:set_edition(og_edition,true)
+            end
+        else
+            local dup = SMODS.create_card({set = 'Joker', area = BalatroSR.hsr_gacha_results_area, skip_materialize = true, key = "j_hsr_"..cardName, no_edition = true})
+            dup:add_to_deck()
+            G.jokers:emplace(dup)
+            if og_edition then
+                dup:set_edition(og_edition,true)
+            end
+        end
     end
 end
 
@@ -1255,9 +1284,27 @@ BalatroSR.readDebuffs = function(card)
                         ret["elements"][valName] = (ret["elements"][valName] or 0) + (valValue/100 * stack)
                     elseif valName == "text" then
                         local supposedText = valValue
+                        local needToRemove = false
                         if debuffVals["duration"] then
+                            needToRemove = true
+                            if supposedText == valValue then
+                                supposedText = supposedText.." ("
+                            end
                             local currentDuration = (card.ability[debuffName.."_duration"] or "Something went wrong.")
-                            supposedText = supposedText.." ("..currentDuration.." turn(s) remaining)"
+                            supposedText = supposedText..currentDuration.." turn(s) remaining, "
+                        end
+
+                        if debuffVals["max_stack"] then
+                            needToRemove = true
+                            if supposedText == valValue then
+                                supposedText = supposedText.." ("
+                            end
+                            local currentStack = (card.ability[debuffName] or "Something went wrong.")
+                            supposedText = supposedText.."Stack: "..currentStack..", "
+                        end
+
+                        if needToRemove then
+                            supposedText = supposedText:sub(1,#supposedText-2)..")"
                         end
 
                         ret["text"][#ret["text"]+1] = supposedText
