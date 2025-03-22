@@ -885,7 +885,7 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
             if not G.GAME.FourStarsFiftyPity then G.GAME.FourStarsFiftyPity = false end
             if G.GAME.FourStarsFiftyPity then
                 G.GAME.FourStarsFiftyPity = false
-                local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"])
+                local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"],pseudoseed("hsr_limited_4stars_gacha_pity"))
                 if randomChar then
                     gacha_load_card(randomChar)
                 end
@@ -893,12 +893,12 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
                 local TheWheelOfLessDoom = pseudorandom("hsr_fourstarsfiftyfifty")
                 if TheWheelOfLessDoom <= 1/2 then --eh, could be worse
                     G.GAME.FourStarsFiftyPity = true
-                    local randomChar = pseudorandom_element(CharList[4])
+                    local randomChar = pseudorandom_element(CharList[4],pseudoseed("hsr_limited_4stars_gacha_lose"))
                     if randomChar then
                         gacha_load_card(randomChar)
                     end 
                 else --gg
-                    local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"])
+                    local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"],pseudoseed("hsr_limited_4stars_gacha_win"))
                     if randomChar then
                         gacha_load_card(randomChar)
                     end
@@ -918,7 +918,7 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
                 local TheWheelOfDoom = pseudorandom("hsr_fiftyfifty")
                 if TheWheelOfDoom <= 1/2 then  --rest in peace :sob:
                     G.GAME.FiftyPity = true
-                    local randomChar = pseudorandom_element(CharList[5]["Standard"])
+                    local randomChar = pseudorandom_element(CharList[5]["Standard"],pseudoseed("hsr_limited_5stars_gacha_lose"))
                     if randomChar then
                         gacha_load_card(randomChar)
                     end
@@ -973,14 +973,14 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
         end
     
         for i = 1,four do
-            local randomChar = pseudorandom_element(CharList[4])
+            local randomChar = pseudorandom_element(CharList[4],pseudoseed("hsr_standard_4stars_gacha"))
             if randomChar then
                 gacha_load_card(randomChar)
             end
         end
     
         for i = 1, five do
-            local randomChar = pseudorandom_element(CharList[5]["Standard"])
+            local randomChar = pseudorandom_element(CharList[5]["Standard"],pseudoseed("hsr_standard_4stars_gacha"))
             if randomChar then
                 gacha_load_card(randomChar)
             end
@@ -1371,7 +1371,7 @@ BalatroSR.randomizeTable = function(table)
         end
 
         for _ = 1,howMany do
-            local randomIndex = pseudorandom_element(indexes)
+            local randomIndex = pseudorandom_element(indexes,pseudoseed("randomizeTableSeed"))
             if randomIndex then
                 ret[randomIndex] = table[randomIndex]        
                 
