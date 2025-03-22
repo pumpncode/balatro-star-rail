@@ -752,7 +752,7 @@ local CharList = { --All characters available from Gacha.
         "Trash"
     },
     [4] = {
-        "Arlan", "Pela", "Sampo", "Tingyun", "Asta", "Natasha", "Qingque", "DanHeng", "M7"
+        "Arlan", "Pela", "Sampo", "Tingyun", "Asta", "Natasha", "Qingque", "DanHeng", "M7", "Hook"
     },
     [5] = {
         ["Limited"] = {
@@ -1004,7 +1004,9 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
             break
         end
     end
-    if not exists or #G.jokers.cards >= G.jokers.config.card_limit then return end
+    if not exists then return end
+    if #G.jokers.cards >= G.jokers.config.card_limit and joker_to_main_mode == 1 then return end
+    
     local og_edition = nil
     if card:get_edition() and card.edition.key then
         og_edition = card.edition.key
