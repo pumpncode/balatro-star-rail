@@ -134,7 +134,9 @@ function toJoker(card)
 end
 
 function gacha(card)
-    if G.GAME.dollars >= card.config.center.cost then
+    local valueToPutInIf = Talisman and to_big and to_big(G.GAME.dollars):gte(card.config.center.cost) or G.GAME.dollars >= card.config.center.cost --lte for lower and equal
+
+    if valueToPutInIf then
         ease_dollars(-card.config.center.cost)
         BalatroSR.hsr_gacha_roll(card)
     end

@@ -2,8 +2,6 @@ BalatroSR = SMODS.current_mod
 
 local CardStats = returnText("CardStats")
 local RelicSetEffects = returnText("RelicSetEffects")
-local box1Size, box2Size = 13, 11
-local DoTTypes = CardStats.DoT
 local AllSuits = {
    "Hearts", "Clubs", "Spades", "Diamonds"
 }
@@ -219,7 +217,7 @@ function addEidolon(self,card,context) --Eidolon handler for HSR Jokers.
    end
 end
 
-function HSRContextHandler(self,card,context,contextTable) --Put this in every HSR Joker. contextTable is used to tell HSRContextHandler to ignore certain automated contexts, useful for adding your own context.
+function HSRContextHandler(self,card,context,contextTable,specificDestroyContext) --Put this in every HSR Joker. contextTable is used to tell HSRContextHandler to ignore certain automated contexts, useful for adding your own context.
    local ret = nil
    local speedIncrease = 0
    local cardAbility = card.ability
@@ -251,28 +249,18 @@ function HSRContextHandler(self,card,context,contextTable) --Put this in every H
 
    if not contextTable or (contextTable and not contextTable["destroy_card"]) then
       if context.destroying_card then
-         if card.ability["card_to_destroy"] then
-            for index,destroyingCard in pairs(card.ability["card_to_destroy"]) do
-               if context.destroying_card == destroyingCard then
-                  card.ability["card_to_destroy"][index] = nil
-                  return {
-                     remove = true
-                  }
-               end
-            end
+         if context.destroying_card["hsr_to_be_destroyed"] then
+            return {
+               remove = true
+            }
          end
       end
 
       if context.destroy_card then
-         if card.ability["card_to_destroy"] then
-            for index,destroyingCard in pairs(card.ability["card_to_destroy"]) do
-               if context.destroy_card == destroyingCard then
-                  card.ability["card_to_destroy"][index] = nil
-                  return {
-                     remove = true
-                  }
-               end
-            end
+         if context.destroy_card["hsr_to_be_destroyed"] then
+            return {
+               remove = true
+            }
          end
       end
    end
@@ -316,6 +304,7 @@ function HSRContextHandler(self,card,context,contextTable) --Put this in every H
       return ret
    end
 end
+
 local CheckBuffDebug = false
 function HSRJokerMain(self,card,context) --joker_main for HSR Jokers. 
    local cardAbility = card.ability
@@ -941,10 +930,8 @@ function clearBuffJoker(card, other_joker, buff) --Clear certain buffs from a Jo
    end
 end
 
-function calculateDOT(card, context) --For Jokers who calculate using DOT.
-   local cardAbility = card.ability
-   local cardInHand = context.other_card
-   local extraStuff = card.ability.extra   
+function calculateDOT(card, context, specificDOT, specificCard, multi) --For Jokers who calculate using DOT.
+   local cardInHand = specificCard or context.other_card
    local atkMulti = (BalatroSR.readBuffs(card))["atkMulti"]
 
    local ret = {
@@ -1073,9 +1060,26 @@ function calculateDOT(card, context) --For Jokers who calculate using DOT.
    end
 
    function BurnCalculate(retCard)
-      if cardInHand.ability and cardInHand.ability.burn_dot then
-         local burnConfig = CardStats["CharacterDebuffs"]["Other"]["burn_dot"]
-         addToRet("mult", calculateBaseMulti(retCard,"Fire",burnConfig.mult * cardInHand.ability.burn_dot, nil,true,nil,cardInHand))
+      for i,v in pairs(cardInHand.ability) do
+         if BalatroSR.checkForIdenticalDebuff(i,"burn_dot") then
+            local stack = v or 1
+            if type(stack) ~= "number" then stack = 1 end
+
+            local burnConfig = CardStats["CharacterDebuffs"]["Other"]["burn_dot"]
+            addToRet("mult", calculateBaseMulti(retCard,"Fire",burnConfig.mult * stack, nil,true,nil,cardInHand))
+         end
+      end
+   end
+
+   function ShockCalculate(retCard)
+      for i,v in pairs(cardInHand.ability) do
+         if BalatroSR.checkForIdenticalDebuff(i,"shock_dot") then
+            local stack = v or 1
+            if type(stack) ~= "number" then stack = 1 end
+
+            local shockConfig = CardStats["CharacterDebuffs"]["Other"]["shock_dot"]
+            addToRet("mult", calculateBaseMulti(retCard,"Lightning",shockConfig.mult * stack, nil,true,nil,cardInHand))
+         end
       end
    end
 
@@ -1084,15 +1088,11 @@ function calculateDOT(card, context) --For Jokers who calculate using DOT.
 
       if cardInHand.ability then
          if not cardInHand.ability.dotMulti then cardInHand.ability.dotMulti = 0 end
+
+         WindShearCalculate(card)
+         BurnCalculate(card)
+
          for i,v in pairs(cardInHand.ability) do
-            if BalatroSR.checkForIdenticalDebuff(i,"wind_shear_dot") and v > 0 then
-               WindShearCalculate(card)
-            end
-
-            if BalatroSR.checkForIdenticalDebuff(i,"burn_dot") and v > 0 then
-               BurnCalculate(card)
-            end
-
             if BalatroSR.checkForIdenticalDebuff(i,"shock_dot") then
                local kafkaConfig = CardStats["config"]["Kafka"]
 
@@ -1115,30 +1115,25 @@ function calculateDOT(card, context) --For Jokers who calculate using DOT.
       end
    end
 
-   function ServalCalculate()
-      for i,v in ipairs(DoTTypes) do
-         if cardInHand.ability then
-            if not cardInHand.ability.dotMulti then cardInHand.ability.dotMulti = 0 end
-            if cardInHand.ability[v] then
-               if v == "kafka_shock_dot" then
-                  local kafkaConfig = CardStats["config"]["Kafka"]
-                  addToRet("mult", calculateBaseMulti(card,kafkaConfig.element,kafkaConfig.shockMult,nil,true,nil,cardInHand))
-              end
-            end
-         end
+   if specificDOT then
+      if specificDOT == "Burn" then
+         BurnCalculate(card)
+      elseif specificDOT == "Wind Shear" then
+         WindShearCalculate(card)
+      elseif specificDOT == "Shock" then
+         ShockCalculate(card)
+      end
+   else
+      if getHSRJokerName(card) == "Kafka" then
+         KafkaCalculate()
+      elseif getHSRJokerName(card) == "Sampo" then
+         WindShearCalculate(card)
+      elseif getHSRJokerName(card) == "Asta" then
+         BurnCalculate(card)
       end
    end
 
    --Calling the calculation respective to the card's name.
-   if getHSRJokerName(card) == "Kafka" then
-      KafkaCalculate()
-   elseif getHSRJokerName(card) == "Sampo" then
-      WindShearCalculate(card)
-   elseif getHSRJokerName(card) == "Asta" then
-      BurnCalculate(card)
-   elseif getHSRJokerName(card) == "Serval" then
-      ServalCalculate()
-   end
 
    for i,v in pairs(ret) do
       if ((i == "mult" or i == "chips") and v ~= 0) or ((i == "xchips" or i == "x_mult") and v ~= 1) then
@@ -1149,15 +1144,15 @@ function calculateDOT(card, context) --For Jokers who calculate using DOT.
 
    if ret.needToCalculate then
       local returnXMult = calculateBaseMulti(card,card.ability.extra.element,ret.x_mult,nil,true,"x_mult",cardInHand)
-      if returnXMult ~= 1 then returnXMult = returnXMult * atkMulti end
+      if returnXMult ~= 1 then returnXMult = returnXMult * atkMulti * (multi or 1) end
 
       local returnXChips = calculateBaseMulti(card,card.ability.extra.element,ret.xchips,nil,true,"x_mult",cardInHand)
-      if returnXChips ~= 1 then returnXChips = returnXChips * atkMulti end
+      if returnXChips ~= 1 then returnXChips = returnXChips * atkMulti * (multi or 1) end
 
       return{
          card = ret.card,
-         mult = ret.mult,
-         chips = ret.chips,
+         mult = ret.mult * (multi or 1),
+         chips = ret.chips* (multi or 1),
          x_mult = returnXMult,
          xchips = returnXChips
       }
@@ -1167,11 +1162,7 @@ end
 
 function addToDestroy(card, a) --"a" must be a table of playing cards.
    for _,v in ipairs(a) do
-      if not card.ability["card_to_destroy"] then
-         card.ability["card_to_destroy"] = {v}
-      else
-         table.insert(card.ability["card_to_destroy"],v)
-      end
+      v["hsr_to_be_destroyed"] = true
    end
 end
 
@@ -1383,7 +1374,6 @@ function generalCooldownRegen(card) --Cooldown Regeneration handler.
          if cardAbility[buffName] then
             for spcBuffName, spcBuff in pairs(buff) do --Add buff's effects accordingly.
                if spcBuffName == "cooldownRegenBonus" then
-                  print("yeee")
                   CooldownRegenBonus = CooldownRegenBonus + spcBuff * (cardAbility[buffName.."_stack"] or 1)
                end
             end
@@ -1548,13 +1538,15 @@ end
 function scoreCheck(x,y) --Check whether current score is higher/lower than (or equal) (x)% of score requirement. Yes, y should be like 100% or something.
    local a = BalatroSR.convertFromPercentage(y)
    if x == "high" then
-      if G.GAME.chips / a >= G.GAME.blind.chips then
+      local valueToPutInIf = Talisman and to_big and (to_big(G.GAME.chips)/to_big(a)):gte(G.GAME.blind.chips) or G.GAME.chips / to_big(a) >= G.GAME.blind.chips
+      if valueToPutInIf then
          return true
       else
          return false
       end
    elseif x == "low" then
-      if G.GAME.chips / a <= G.GAME.blind.chips then
+      local valueToPutInIf = Talisman and to_big and (to_big(G.GAME.chips)/to_big(a)):lte(G.GAME.blind.chips) or G.GAME.chips / to_big(a) <= G.GAME.blind.chips
+      if valueToPutInIf then
          return true
       else
          return false
@@ -1887,7 +1879,7 @@ SMODS.Joker{ --March 7th (my beloved)
 
             G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + 1
             return{
-               message = "Glacial Cascade!",
+               message = localize("hsr_m7_message"),
             }
          end
       end
@@ -2047,7 +2039,7 @@ SMODS.Joker{ --Dan Heng
 
          if passive2_message_return then
             return{
-               message = "Ethereal Dream!",
+               message = localize("hsr_danheng_message"),
             }
          end
       end
@@ -2172,7 +2164,7 @@ SMODS.Joker{ --Sampo
       if context.before and context.cardarea == G.jokers then
          local inflictNumber = 5
          for i = 1,inflictNumber do
-            local cardInHand = pseudorandom_element(G.hand.cards)
+            local cardInHand = pseudorandom_element(G.hand.cards,pseudoseed("sampo_card_in_hand"))
             if cardInHand then
                cardInHand.ability.sampo_wind_shear_dot_eidolon = card.ability.extra.currentEidolon
 
@@ -2327,7 +2319,7 @@ SMODS.Joker{ --Pela
          end
          return {
             card = card,
-            message = "Exposed!"
+            message = localize("hsr_pela_message")
          }
       end
 
@@ -2449,7 +2441,7 @@ SMODS.Joker{ --Natasha
             for i = 1,ultTime do
                if card.ability.extra.ultCooldown >= card.ability.extra.ultRequiredCooldown then
                   card.ability.extra.ultCooldown = card.ability.extra.ultCooldown - card.ability.extra.ultRequiredCooldown
-                  G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + (1 + selfRetriggers)
+                  G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + 1
                   if card.ability.extra.currentEidolon >= 2 then
                      buffJoker(card,card,"natasha_e2_temp")
                   end
@@ -2706,7 +2698,7 @@ SMODS.Joker{ --Asta
       if context.before and context.cardarea == G.jokers and card.ability.extra.currentEidolon >= 1 then
          local inflictNumber = 5
          for i = 1,inflictNumber do
-            local cardInHand = pseudorandom_element(G.hand.cards)
+            local cardInHand = pseudorandom_element(G.hand.cards,pseudoseed("sampo_card_in_hand"))
             if cardInHand then
                if (cardInHand.ability.burn_dot or 0) < CardStats["CharacterDebuffs"]["Other"]["burn_dot"]["max_stack"] then inflictDebuff(card,cardInHand,"burn_dot", "Burn!", true) end
             end
@@ -2731,7 +2723,7 @@ SMODS.Joker{ --Asta
             card:juice_up()
             card.ability.extra["astrometryStack"] = card.ability.extra["astrometryStack"] + 1
             return {
-               message = "+1 Astrometry!",
+               message = localize("hsr_asta_message1"),
                card = card,
                --no_retrigger = true,
             }
@@ -2763,7 +2755,7 @@ SMODS.Joker{ --Asta
 
             return {
                card = card,
-               message = "Astral Blessing!"
+               message = localize("hsr_asta_message2")
             }
          end
       end
@@ -2915,7 +2907,7 @@ SMODS.Joker{ --Herta
             end
 
             return{
-               message = "Kuru Kuru!~",
+               message = localize("hsr_herta_message"),
                card = card,
             }
          end
@@ -3067,7 +3059,7 @@ SMODS.Joker{ --Qingque
             local fore6 = {}
 
             for _,v in ipairs(G.play.cards) do
-               local randomSuit = pseudorandom_element(AllSuits)
+               local randomSuit = pseudorandom_element(AllSuits,pseudoseed("qq_random_suit"))
                table.insert(suitChanged,randomSuit)
                table.insert(fore6,{["card"] = v, ["suit"] = randomSuit})
                BalatroSR.animatedChangeBase({v},randomSuit,nil,nil,nil,false,true)
@@ -3115,7 +3107,7 @@ SMODS.Joker{ --Qingque
                      end
 
                      if can then
-                        local randomSuit = pseudorandom_element(AllSuits)
+                        local randomSuit = pseudorandom_element(AllSuits,pseudoseed("qq_random_suit2"))
                         table.insert(suitChanged,randomSuit)
                         BalatroSR.animatedChangeBase({v1["card"]},randomSuit,nil,nil,nil,false,true)
 
@@ -3127,7 +3119,7 @@ SMODS.Joker{ --Qingque
                   suitChanged = {}
 
                   for _,v in ipairs(G.play.cards) do
-                     local randomSuit = pseudorandom_element(AllSuits)
+                     local randomSuit = pseudorandom_element(AllSuits,pseudoseed("qq_random_suit_3_and_why_do_i_have_so_many"))
                      table.insert(suitChanged,randomSuit)
                      BalatroSR.animatedChangeBase({v},randomSuit,nil,nil,nil,false,true)
                   end
@@ -3176,7 +3168,7 @@ SMODS.Joker{ --Qingque
          if card.ability.extra.tile < 4 then
             SMODS.calculate_effect({message = "["..card.ability.extra.tile.."/4!]"},card)
          elseif card.ability.extra.tile >= 4 and not card.ability["qq_cherryontop"] then
-            SMODS.calculate_effect({message = "Cherry on Top!"},card)
+            SMODS.calculate_effect({message = localize("hsr_qingque_message")},card)
             card.ability["qq_cherryontop"] = true
          end
       end
@@ -3211,7 +3203,7 @@ SMODS.Joker{ --Qingque
       if context.cardarea == G.play and context.repetition and card.ability["qingque_cherryontop"] and card.ability.extra.currentEidolon >= 4 and pseudorandom("qingque_e4") <= 3/4 then
          return {
             card = card,
-            message = "Again!",
+            message = localize("k_again_ex"),
             repetitions = 1,
          }
       end
@@ -3417,9 +3409,210 @@ SMODS.Joker{ --Serval
          center.ability.extra.ultRequiredCooldown,
       }
 
-    info_queue[#info_queue+1] = {set = 'Other', key = 'hsr_dot_shock'}
+      local siq = {
+         {
+            {
+               set = 'Other',
+               key = 'hsr_dot_shock'
+            },
+         },
+         {
+            {
+               set = 'Other',
+               key = 'hsr_dot_shock'
+            },
+         },
+      }
+   
+      hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar,siq)
+   end,
 
-    hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar)
+}
+
+SMODS.Joker{ --Hook
+   key = 'Hook',
+   config = {
+      extra = CardStats["config"]["Hook"]
+   },
+   loc_txt = {
+      name = 'Hook',
+      text = {
+         'underrated character ngl'
+      },
+   },
+   atlas = 'Jokers',
+   rarity = 3,
+   cost = 1,
+   unlocked = true,
+   discovered = true,
+   blueprint_compat = true,
+   eternal_compat = true,
+   perishable_compat = false,
+   in_pool = function(self, args)
+      return false
+   end,
+   pos = {x = 1, y = 0},
+
+   update = function(self, card, dt)
+      HDUpdate(card)
+      loadRelics(card)
+   end,
+
+   add_to_deck = function(self, card, from_debuff)
+		HDAdd(card)
+	end,
+
+	remove_from_deck = function(self, card, from_debuff)
+		HDRemove(card)
+	end,
+
+   calculate = function(self, card, context)
+      local extraStuff = card.ability.extra
+      local ret = HSRContextHandler(self,card,context)
+
+      if context.before and context.cardarea == G.jokers and not context.blueprint then --Ultimate Cooldown (Hands)
+         local adjCards = BalatroSR.adjacentCards(pseudorandom_element(G.hand.cards,pseudoseed("hook_random_card")),G.hand,false,1)
+         if adjCards then
+            for _,v in ipairs(adjCards) do
+               inflictDebuff(card,v,"burn_dot","Burn!")
+            end
+         end
+      end
+
+      if context.before and context.cardarea == G.jokers and not context.blueprint and not context.retrigger_joker then
+         local destroyingCards = {}
+
+         for i,v in ipairs(G.play.cards) do
+            for i2,v2 in pairs(v.ability) do
+               if BalatroSR.checkForIdenticalDebuff(i2,"burn_dot") then
+                  if (v2 or 0) >= 2 then
+                     destroyingCards[#destroyingCards+1] = v
+                     card.ability.extra.mult = card.ability.extra.mult + 5
+                     break
+                  end
+               end
+            end
+         end
+
+         if #destroyingCards >= 1 then
+            addToDestroy(card,destroyingCards)
+         end
+      end
+
+      if context.pre_discard and context.main_eval and not context.blueprint then --Ultimate Cooldown (Discard)
+         local cloneTable = {}
+         for _,v in ipairs(G.hand.cards) do
+            local isHighlighted = false
+
+            for _,v2 in ipairs(G.hand.highlighted) do
+               if v2 == v then
+                  isHighlighted = true
+                  break
+               end
+            end
+
+            if not isHighlighted then
+               cloneTable[#cloneTable+1] = v
+            end
+         end
+         local adjCards = BalatroSR.adjacentCards(pseudorandom_element(cloneTable,pseudoseed("hook_random_card_discard")),G.hand,false,1)
+         if adjCards then
+            for _,v in ipairs(adjCards) do
+               inflictDebuff(card,v,"burn_dot","Burn!")
+            end
+         end
+      end
+
+      if context.individual and context.cardarea == G.play then
+         local multi = 1
+         if card.ability.extra.currentEidolon >= 1 then multi = multi + 1.2 end
+         if card.ability.extra.currentEidolon >= 6 then multi = multi + 1.3 end
+
+         if card.ability.extra.currentEidolon >= 4 then
+            local adjCards = BalatroSR.adjacentCards(context.other_card,G.play,false,1)
+            for _,v in ipairs(adjCards) do
+               local hasBurn = false
+               
+               for debuffName,_ in pairs(v.ability or {}) do
+                  if BalatroSR.checkForIdenticalDebuff(debuffName,"burn_dot") then
+                     hasBurn = true
+                     break
+                  end
+               end
+
+               if hasBurn then
+                  SMODS.calculate_effect(calculateDOT(card,context,"Burn",v,multi),v)
+               end
+            end
+         end
+
+         return(calculateDOT(card,context,"Burn",nil,multi))
+      end
+
+      if ret then
+         return ret
+      end
+   end,
+
+   generate_ui = function(self, info_queue, center, desc_nodes, specific_vars, full_UI_table)
+      local speedIncrease = 0
+      local cardAbility = center.ability
+
+      local allGains = collectStats(center)
+
+      local returnVar = {
+         center.ability.extra.currentEidolon, --1
+         center.ability.extra.type, --2
+         center.ability.extra.element, --3
+         center.ability.extra.head, --4
+         center.ability.extra.body, --5
+         center.ability.extra.hands, --6
+         center.ability.extra.feet, --7
+         center.ability.extra.headName,--8 
+         center.ability.extra.bodyName, --9
+         center.ability.extra.handsName, --10
+         center.ability.extra.feetName,--11
+         center.ability.extra.headEffect,--12
+         center.ability.extra.bodyEffect,--13
+         center.ability.extra.handsEffect,--14
+         center.ability.extra.feetEffect,--15
+         center.ability.extra.twopcssetEffect,--16
+         center.ability.extra.fourpcssetEffect,--17
+         center.ability.extra.page,--18
+         center.ability.extra.max_page,--19
+         ---Stats
+         allGains["speed"], --20
+         center.ability.extra.excess_action_value, --21
+         allGains["atkMulti"] * 100 - 100, --22
+         allGains["bee"] * 100 - 100, --23
+         allGains["elementMulti"] * 100 - 100, --24
+         allGains["otherStats"], --25
+         ---Planar
+         center.ability.extra.orbName, --26
+         center.ability.extra.orbEffect, --27 
+         center.ability.extra.ropeName, --28
+         center.ability.extra.ropeEffect, --29 
+         center.ability.extra.planarsetEffect, --30
+         --Other Vars
+         center.ability.extra.mult
+      }
+
+    local siq = {
+      {
+         {
+            set = 'Other',
+            key = 'hsr_dot_burn'
+         },
+      },
+      {
+         {
+            set = 'Other',
+            key = 'hsr_dot_burn'
+         },
+      },
+   }
+
+   hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar,siq)
    end,
 
 }
@@ -3480,7 +3673,7 @@ SMODS.Joker{ --Yanqing
          end
          return{
             card = card,
-            message = "Soulsteel Sync!",
+            message = localize("hsr_yanqing_message"),
          }
       end
 
@@ -3489,7 +3682,7 @@ SMODS.Joker{ --Yanqing
             clearBuffJoker(card,card,{"yanqing_soulsteel_sync", "yanqing_e5", "yanqing_soulsteel_synce2", "yanqing_soulsteel_synce4", "yanqing_soulsteel_synce6"})
             return{
                card = card,
-               message = "Lost Soulsteel Sync!",
+               message = localize("hsr_yanqing_message2"),
             }
          end
 
@@ -3630,7 +3823,7 @@ SMODS.Joker{ --Welt
          weltChips(remain)
 
          return {
-            message = "Reset!",
+            message = localize("k_reset"),
          }
       end
 
@@ -3648,7 +3841,7 @@ SMODS.Joker{ --Welt
          local uniqueUsed = {}
 
          for i = 1,randomTime do
-            copied2[#copied2+1] = pseudorandom_element(copied)
+            copied2[#copied2+1] = pseudorandom_element(copied,pseudoseed("welt_random_card"))
          end
 
          for _,v in ipairs(copied2) do
@@ -3874,7 +4067,7 @@ SMODS.Joker{ --Himeko
                   end
                end
 
-               local randomCard = pseudorandom_element(cardInRank)
+               local randomCard = pseudorandom_element(cardInRank,pseudoseed("himeko_lowest_rank"))
                if randomCard then
                   addToDestroy(card,{randomCard})
                end
@@ -3886,7 +4079,7 @@ SMODS.Joker{ --Himeko
             if #differentSuits >= 4 and card.ability.extra.currentEidolon >= 3 then
                card.ability["himeko_e3_proc"] = true
             end
-            card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Victory Rush!"})
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize("hsr_himeko_message")})
          end
       end
 
@@ -4060,7 +4253,7 @@ SMODS.Joker{ --Bailu
          local repeated = 0
 
          for i = 1,randomTime do
-            copied2[#copied2+1] = pseudorandom_element(copied)
+            copied2[#copied2+1] = pseudorandom_element(copied,pseudoseed("bailu_rng"))
          end
 
          if card.ability.extra.currentEidolon >= 1 then
@@ -4107,7 +4300,7 @@ SMODS.Joker{ --Bailu
          end
 
          return {
-            message = "Felicitous Thunderleap!",
+            message = localize("hsr_bailu_message"),
          }
       end
 
@@ -4269,10 +4462,10 @@ SMODS.Joker{ --Jing Yuan
             end
 
             for _ = 1,card.ability.extra.hpa do
-               local radCard = pseudorandom_element(G.hand.cards)
+               local radCard = pseudorandom_element(G.hand.cards,pseudoseed("jingyuan_ll_rng"))
                radCard = BalatroSR.adjacentCards(radCard,G.hand,false)
 
-               card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Lightning Lord!"})
+               card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize("hsr_jingyuan_message")})
 
                for _,cardInHand in ipairs(radCard) do
                   local jy_Mult = 5
@@ -4465,7 +4658,7 @@ SMODS.Joker{ --Clara
             end
          end
 
-         local radCard = pseudorandom_element(filteredCards)
+         local radCard = pseudorandom_element(filteredCards,pseudoseed("clara_rng"))
          inflictDebuff(card,radCard,"clara_mark", "Marked!")
       end
 
@@ -4487,7 +4680,7 @@ SMODS.Joker{ --Clara
             end
 
             card.ability.extra.mult = card.ability.extra.mult + (multIncrease * #markedCards)
-            card_eval_status_text(card, 'extra', nil, nil, nil, {message = "Increased!"})
+            card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize("hsr_increase")})
          end
       end
 
@@ -4576,7 +4769,7 @@ SMODS.Joker{ --Seele
    add_to_deck = function(self, card, from_debuff)
 		HDAdd(card)
       if #G.playing_cards > 0 then
-         local randomCard = pseudorandom_element(G.playing_cards)
+         local randomCard = pseudorandom_element(G.playing_cards,pseudoseed("seele_rng"))
          if randomCard then
             card.ability.extra.repeatSuit = randomCard.base.suit
             card.ability.extra.chosenRank = randomCard.base.id
@@ -4618,7 +4811,7 @@ SMODS.Joker{ --Seele
 
       if context.after and context.cardarea == G.jokers and not context.blueprint then
          if #G.playing_cards > 0 then
-            local randomCard = pseudorandom_element(G.playing_cards)
+            local randomCard = pseudorandom_element(G.playing_cards,pseudoseed("seele_rng2"))
             if randomCard then
                card.ability.extra.repeatSuit = randomCard.base.suit
                card.ability.extra.chosenRank = randomCard.base.id
@@ -4651,9 +4844,10 @@ SMODS.Joker{ --Seele
       end
 
       if context.cardarea == G.play and context.repetition and context.other_card:is_suit(card.ability.extra.repeatSuit) and not context.retrigger_joker then
+         print(context.retrigger_joker)
          return {
             card = card,
-            message = "Resurgence!",
+            message = localize("hsr_seele_message"),
             repetitions = 1,
          }
       end
@@ -4903,7 +5097,7 @@ SMODS.Joker{ --Kafka
 
       if context.before and context.cardarea == G.jokers then
          local radius = 2
-         local radCards = BalatroSR.adjacentCards(pseudorandom_element(G.hand.cards),G.hand,false,radius)
+         local radCards = BalatroSR.adjacentCards(pseudorandom_element(G.hand.cards,pseudoseed("kafka_rng")),G.hand,false,radius)
 
          for _,cardInHand in ipairs(radCards) do
             cardInHand.ability.kafka_shock_dot_eidolon = card.ability.extra.currentEidolon
@@ -5025,7 +5219,7 @@ SMODS.Joker{ --Kafka
 }
 
 local hookTo = end_round
-end_round = function()
+end_round = function() --Clear all buffs/debuffs at the end of round
    local ret = hookTo()
    clearDebuff()
    clearJokerBuffs()
@@ -5033,14 +5227,14 @@ end_round = function()
 end
 
 local hookTo = G.FUNCS.play_cards_from_highlighted
-G.FUNCS.play_cards_from_highlighted = function(e)
+G.FUNCS.play_cards_from_highlighted = function(e) --Test
    local ret = hookTo(e)
    --print("good morning sunshine")
    return ret
 end
 
 local hookTo = new_round
-new_round = function()
+new_round = function() --Helping with new "Turn" handler
    local ret = hookTo()
    G.GAME["hsr_states"] = {}
    G.GAME["hsr_states"]["turn_elapsed_pass"] = true
@@ -5049,7 +5243,7 @@ new_round = function()
 end
 
 local hookTo = G.FUNCS.draw_from_deck_to_hand
-G.FUNCS.draw_from_deck_to_hand = function(e)
+G.FUNCS.draw_from_deck_to_hand = function(e) --To handle when a new "Turn" passes
    local ret = hookTo(e)
 
    if G.GAME["hsr_states"] and G.GAME["hsr_states"]["turn_elapsed_pass"] then

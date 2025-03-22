@@ -35,7 +35,7 @@ SMODS.Joker{ --Arlan
       if context.individual and context.cardarea == G.play then
             if card.ability.extra.currentEidolon >= 6 then
                if context.other_card:is_suit("Spades") or context.other_card:is_suit("Clubs") then
-                  local currentMoney = G.GAME.dollars
+                  local currentMoney = to_big(G.GAME.dollars)
                   local multi = math.floor(currentMoney/5)
                   local MultMulti = 1 + (0.02 * multi)
                   if MultMulti >= card.ability.extra.e4cap then MultMulti = card.ability.extra.e4cap end
@@ -50,7 +50,7 @@ SMODS.Joker{ --Arlan
             else
                 if card.ability.extra.currentEidolon >= 5 then
                    if context.other_card:is_suit("Spades") then
-                        local currentMoney = G.GAME.dollars
+                        local currentMoney = to_big(G.GAME.dollars)
                         local multi = math.ceil(currentMoney/5)
                         local MultMulti = 1 + (0.02 * multi)
                         if MultMulti >= card.ability.extra.e4cap then MultMulti = card.ability.extra.e4cap end
@@ -64,7 +64,7 @@ SMODS.Joker{ --Arlan
                     end 
                 elseif card.ability.extra.currentEidolon >= 4 then
                     if context.other_card:is_suit("Spades") then
-                      	local currentMoney = G.GAME.dollars
+                      	local currentMoney = to_big(G.GAME.dollars)
                         local multi = math.ceil(currentMoney/5)
                         local MultMulti = 1 + (0.02 * multi)
                         if MultMulti >= card.ability.extra.e4cap then MultMulti = card.ability.extra.e4cap end

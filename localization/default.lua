@@ -1,5 +1,54 @@
 return { --remind me to work on this
     descriptions = {
+        Passive = {
+            psv_hsr_Svarog_passive1 = {
+                name = 'Elemental Resistance',
+                text = {
+                   '{C:red,E:2}Reduces{} effects of all {C:attention}Physical{}, {C:attention}Ice{}, {C:attention}Quantum{}, and',
+                   '{C:attention}Imaginary{} Jokers (if possible) by 20%',
+                   ' ',
+                   '{C:green,E:2}Increases{} effects of all {C:attention}Fire{}, {C:attention}Lightning{}, and {C:attention}Wind{} Jokers',
+                   '(if possible) by 20%',
+                }
+            },
+            psv_hsr_Svarog_passive2 = {
+                name = 'A Steel Heart Capable of Care',
+                text = {
+                    'If {C:attention}Clara{} is in the Joker area, her effects are {C:green,E:2}increased{}',
+                    'by 50%',
+                }
+            },
+            psv_hsr_Svarog_passive3 = {
+                name = 'Boost Deployment',
+                text = {
+                    'At the start of phase, Auxiliary Robot Arm Unit',
+                    'becomes {C:green}Active{}',
+                    ' ',
+                    'If scored hand has base suits {C:spades}Spades{}, {C:hearts}Hearts{}, {C:clubs}Clubs{},',
+                    'and {C:diamonds}Diamonds{} cards, deactivates Auxiliary Robot Arm Unit',
+                }
+            },
+            psv_hsr_Svarog_passive4 = {
+                name = 'Auxiliary Robot Arm Unit',
+                text = {
+                    'If played hand has no cards with base Suit that is {C:hearts}Hearts{},',
+                    '{C:red,E:2}temporarily debuffs one Joker{}',
+                    ' ',
+                    '{X:mult,C:white}X0.5{} Mult',
+                    '{X:chips,C:white}X0.5{} Chips',
+                    '{C:inactive}(Currently: ACTIVE){}',
+                }
+            },
+            psv_hsr_Showdown = {
+                name = 'Final Showdown',
+                text = {
+                    'Boss Blind has {C:attention}3{} Phases',
+                    ' ',
+                    'Advances to the next Phase when score requirement is met,',
+                    'and restores {C:blue}Hands{} to full',
+                }
+            },
+        },
         dictionary={
             hsr_keybind_warning = {
                 name = "",
@@ -31,7 +80,7 @@ return { --remind me to work on this
 				text = {
                     "HSR Jokers{} can only be obtained through Warp Tickets, except for {C:attention}Literal Trash{}.",   
                     "HSR Jokers can increase their {C:attention}Eidolon{} by having identical or certain cards at its right, further buffing them.",
-                    "HSR Jokers have hidden stats, which are all {C:green}increased{}/{C:red}decreased{} by {C:green}Buff{}/{C:red}Debuffs{}, {C:green}increasing{}/{C:red}decreasing{} the effectiveness of their effects.",
+                    "HSR Jokers have stats, which are all {C:green}increased{}/{C:red}decreased{} by {C:green}Buff{}/{C:red}Debuffs{}, {C:green}increasing{}/{C:red}decreasing{} the effectiveness of their effects.",
                     "HSR Jokers all have an {C:attention}Element{} and a {C:attention}Type{}, which some effects may use to determine the outcome.",
 				},
             },
@@ -39,7 +88,7 @@ return { --remind me to work on this
                 name = "",
 				text = {
                     "There is currently a number of stats a HSR Joker can have, which is: {C:attention}Attack{}, {C:attention}Element Multi{}, {C:attention}Cooldown Regeneration{}, {C:attention}Basic Effect Efficiency{}, {C:attention}Ultimate Efficiency{}, {C:attention}Follow-up Effect Efficiency{}.",
-                    "Playing Cards can have a numder of stats, which is: {C:attention}Element Res{}, {C:attention}DOT Multi{}, {C:attention}Defense Reduction{}, which all boost effects that target them specifically for {C:mult}Mult{}/{C:chips}Chip{} gains.",
+                    "Playing Cards can have a numder of stats, which is: {C:attention}Element Res{}, {C:attention}DOT Multi{}, {C:attention}Defense Reduction{}, which all boost [Attack] effects that target them.",
                     "{C:attention}Basic Effect Efficiency{} boosts effects of HSR Jokers which are triggered at end of hand, such as {C:mult}+5{} Mult."
 				},
             },
@@ -655,6 +704,61 @@ return { --remind me to work on this
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
             },
+            ["j_hsr_Hook1"] = {
+                name = "Hook",
+                text = {
+                    "{C:mult}+#31#{} Mult",
+                    "When {C:blue}Hand{}/{C:red}Discard{} is used, inflicts {C:attention}Burn{} on a random",
+                    "card and its adjacent cards in hand",
+                    "{C:inactive}[Attack]{} Triggers {C:attention}Burn{} on each scored card,",
+                    "if it has more than (or equal) 2 stacks of {C:attention}Burn{}, {E:2,C:red}destroys it{},",
+                    "and increases Mult by {C:mult}+5{}",
+                }
+            },
+            ["j_hsr_Hook2"] = {
+                name = "Hook",
+                text = {
+                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {C:attention,E:2,s:0.7}Attack{}{s:0.7} gives 20% more Mult{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}Inflicts an additional stack of {}{C:attention,s:0.7}Burn{}",
+                    '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5%{}',
+                    '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}If {C:attention,E:2,S:0.7}Attack{} is triggered, additionally triggers {}{C:attention,s:0.7}Burn{}{s:0.7} on adjacent cards{}",
+                    '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 7%{}',
+                    '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Attack{}{s:0.7} gives 30% more Mult{}",
+                    'Current Eidolon: {C:mult}#1#{}',
+                    'Type: {C:mult}#2#{}',
+                    'Element: {C:mult}#3#{}',
+                    '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
+                    '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
+                }
+            },
+        },
+        WarpTickets = {
+            c_hsr_starrailspecialpass = {
+                name = "Star Rail Special Pass",
+                text = {
+                    'Roll #1# time(s) with different chances.',
+                    '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker.{}',
+                    '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker.{}',
+                    '{C:inactive,s:0.6}0.3% to get a 5 stars Standard Joker.{}',
+                    '{C:inactive,s:0.6}0.3% to get a 5 stars Special Joker.{}',
+                    'Pity: #7#',
+                    '#2#',
+                    '{C:inactive,s:0.8}Featured 5-Star:{} {C:attention,s:0.8}#3#{}',
+                    '{C:inactive,s:0.8}Featured 4-Star:{} {C:attention,s:0.8}#4#{}',
+                    '{C:inactive,s:0.6}[Banner #5#/#6#]{}',
+                },
+            },
+
+            c_hsr_starrailpass = {
+                name = 'Star Rail Pass', 
+                text = { 
+                    'Roll #1# time(s) with different chances.',
+                    '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker.{}',
+                    '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker.{}',
+                    '{C:inactive,s:0.6}0.6% to get a 5 stars Standard Joker.{}',
+                    'Pity: #2#',
+                }
+            },
         },
         Other = {
             hsr_pc_debuff = {
@@ -706,6 +810,25 @@ return { --remind me to work on this
     },
     misc={
         dictionary = {
+            hsr_m7_message = "Glacial Cascade!",
+            hsr_danheng_message = "Ethereal Dream!",
+            hsr_pela_message = "Exposed!",
+            hsr_asta_message1 = "+1 Astrometry!",
+            hsr_asta_message2 = "Astral Blessing!",
+            hsr_herta_message = "Kuru Kuru!~",
+            hsr_qingque_message = "Cherry on Top!",
+            hsr_yanqing_message = "Soulsteel Sync!",
+            hsr_yanqing_message2 = "Lost Soulsteel Sync!",
+            hsr_himeko_message = "Victory Rush!",
+            hsr_bailu_message = "Felicitous Thunderleap!",
+            hsr_jingyuan_message = "Lightning Lord!",
+            hsr_increase = "Increased!",
+            hsr_seele_message = "Resurgence!",
+
+            hsr_banner_name1 = "Butterfly on Swordtip",
+            hsr_banner_name2 = "Swirl of Heavenly Spear",
+            hsr_banner_name3 = "Nessun Dorma (EARLY)",
+
             hsr_switch_desc1 = "SWITCH",
             hsr_switch_desc2 = "DESC",
             hsr_switch_banner1 = "SWITCH",

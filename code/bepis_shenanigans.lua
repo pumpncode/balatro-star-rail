@@ -17,17 +17,17 @@ BalatroSR.enhanceCard = function(card,other_card,enhancement,after,immediate,no_
                end
            }))
         end
-     end
+    end
 
-     for _,othercard in ipairs(other_card) do
+    for _,othercard in ipairs(other_card) do
         local e = enhancement
         if type(enhancement) == "table" then
            e = pseudorandom_element(enhancement)
         end
         othercard:set_ability(G.P_CENTERS[e],nil,true)
-     end
+    end
 
-     if not no_effects then
+    if not no_effects then
         for _,othercard in ipairs(other_card) do
            G.E_MANAGER:add_event(Event({
               trigger = (after and 'after') or (immediate and "immediate") or 'before',

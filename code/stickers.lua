@@ -23,6 +23,9 @@ SMODS.Sticker{ -- Sticker to show debuffs on Playing Cards. (pc stands for playi
         --info_queue[#info_queue + 1] = G.P_CENTERS.e_negative THIS IS NOT IT IM GOING FUCKING CRAZY RAHHHHHHHHHHHHHHHHHHHHHHHH
 		--return { vars = { card.ability.extra.collectedDebuffs } }
 
+        if not cardHasDebuff(card) then
+            SMODS.Stickers["hsr_pc_debuff"]:apply(card,false)
+        end
 
         --LAST PUSH, COME ON...
         local var = "None"

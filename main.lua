@@ -13,6 +13,10 @@ local allFiles = {
     ["code"] = {"bepis_shenanigans", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
 } --Same goes with this.
 
+local joker_to_main_mode = 2 
+--Mode 1: Normal mode, add Joker to the Joker area, which will be consumed after shop.
+--Mode 2: Experimental mode, Joker in Joker area immediately consumes added jokers if possible for Eidolon. 
+
 local hsrText = { --The core of EVERYTHING.
     RelicSetEffects = {
         ["2pcs"] = {
@@ -674,6 +678,7 @@ local hsrText = { --The core of EVERYTHING.
             Hook = {
                 type = "Destruction",
                 element = "Fire",
+                mult = 0,
             },
             Gepard = {
                 type = "Preservation",
@@ -747,7 +752,7 @@ local CharList = { --All characters available from Gacha.
         "Trash"
     },
     [4] = {
-        "Arlan", "Pela", "Sampo", "Tingyun", "Asta", "Natasha", "Qingque", "DanHeng", "M7"
+        "Arlan", "Pela", "Sampo", "Tingyun", "Asta", "Natasha", "Qingque", "DanHeng", "M7", "Hook"
     },
     [5] = {
         ["Limited"] = {
@@ -764,21 +769,23 @@ local CharList = { --All characters available from Gacha.
 }
 local BannerList = { --All banners.
     [1] = {
-        Name = "Butterfly on Swordtip",
+        Name = "hsr_banner_name1",
         FiveStars = "Seele",
-        FourStars = {"Pela", "Natasha", "DanHeng"}
+        FourStars = {"Pela", "Natasha", "Hook"}
     },
     [2] = {
-        Name = "Swirl of Heavenly Spear",
+        Name = "hsr_banner_name2",
         FiveStars = "JingYuan",
         FourStars = {"Tingyun", "Qingque", "M7"}
     },
     [3] = {
-        Name = "Nessun Dorma (EARLY)",
+        Name = "hsr_banner_name3",
         FiveStars = "Kafka",
         FourStars = {"Serval", "Sampo", "Pela"}
     },
 }
+
+to_big = to_big or function(x) return x end
 
 function returnHsrBanners() --Returning HSR Banners as a table.
     return BannerList
@@ -880,7 +887,7 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
             if not G.GAME.FourStarsFiftyPity then G.GAME.FourStarsFiftyPity = false end
             if G.GAME.FourStarsFiftyPity then
                 G.GAME.FourStarsFiftyPity = false
-                local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"])
+                local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"],pseudoseed("hsr_limited_4stars_gacha_pity"))
                 if randomChar then
                     gacha_load_card(randomChar)
                 end
@@ -888,12 +895,12 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
                 local TheWheelOfLessDoom = pseudorandom("hsr_fourstarsfiftyfifty")
                 if TheWheelOfLessDoom <= 1/2 then --eh, could be worse
                     G.GAME.FourStarsFiftyPity = true
-                    local randomChar = pseudorandom_element(CharList[4])
+                    local randomChar = pseudorandom_element(CharList[4],pseudoseed("hsr_limited_4stars_gacha_lose"))
                     if randomChar then
                         gacha_load_card(randomChar)
                     end 
                 else --gg
-                    local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"])
+                    local randomChar = pseudorandom_element(BannerList[card.ability.extra.selected_banner]["FourStars"],pseudoseed("hsr_limited_4stars_gacha_win"))
                     if randomChar then
                         gacha_load_card(randomChar)
                     end
@@ -913,7 +920,7 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
                 local TheWheelOfDoom = pseudorandom("hsr_fiftyfifty")
                 if TheWheelOfDoom <= 1/2 then  --rest in peace :sob:
                     G.GAME.FiftyPity = true
-                    local randomChar = pseudorandom_element(CharList[5]["Standard"])
+                    local randomChar = pseudorandom_element(CharList[5]["Standard"],pseudoseed("hsr_limited_5stars_gacha_lose"))
                     if randomChar then
                         gacha_load_card(randomChar)
                     end
@@ -968,14 +975,14 @@ BalatroSR.hsr_gacha_roll = function(card) --Gacha Roll for Normal Warp Tickets a
         end
     
         for i = 1,four do
-            local randomChar = pseudorandom_element(CharList[4])
+            local randomChar = pseudorandom_element(CharList[4],pseudoseed("hsr_standard_4stars_gacha"))
             if randomChar then
                 gacha_load_card(randomChar)
             end
         end
     
         for i = 1, five do
-            local randomChar = pseudorandom_element(CharList[5]["Standard"])
+            local randomChar = pseudorandom_element(CharList[5]["Standard"],pseudoseed("hsr_standard_4stars_gacha"))
             if randomChar then
                 gacha_load_card(randomChar)
             end
@@ -992,6 +999,14 @@ end
 
 BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Area
     local card = j
+    local existingJoker = nil
+    for _,v in ipairs(G.jokers.cards) do
+        if v.config.center.key == card.config.center.key then
+            existingJoker = v
+            break
+        end
+    end
+
     local exists = false
     for i,v in pairs(G.hsr_gacha_results_area.cards) do
         if v == card then
@@ -999,15 +1014,17 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
             break
         end
     end
-    if not exists or #G.jokers.cards >= G.jokers.config.card_limit then return end
+    if not exists then return end
+    if #G.jokers.cards >= G.jokers.config.card_limit and joker_to_main_mode == 1 then return end
+    if joker_to_main_mode == 2 and not existingJoker and #G.jokers.cards >= G.jokers.config.card_limit then return end
+    if joker_to_main_mode == 2 and existingJoker and existingJoker.ability.extra.currentEidolon >= 6 and (existingJoker:get_edition() or (not existingJoker:get_edition() and not card:get_edition())) then return end
+    
     local og_edition = nil
     if card:get_edition() and card.edition.key then
         og_edition = card.edition.key
     end
 
     local cardName = string.gsub(card.ability.name,string.sub(card.ability.name,1,6),"")
-
-    local dup = SMODS.create_card({set = 'Joker', area = BalatroSR.hsr_gacha_results_area, skip_materialize = true, key = "j_hsr_"..cardName, no_edition = true})
 
     G.E_MANAGER:add_event(Event({
         func = function()
@@ -1027,10 +1044,31 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
         end
     })) 
 
-    dup:add_to_deck()
-    G.jokers:emplace(dup)
-    if og_edition then
-        dup:set_edition(og_edition,true)
+    if joker_to_main_mode == 1 then
+        local dup = SMODS.create_card({set = 'Joker', area = BalatroSR.hsr_gacha_results_area, skip_materialize = true, key = "j_hsr_"..cardName, no_edition = true})
+        dup:add_to_deck()
+        G.jokers:emplace(dup)
+        if og_edition then
+            dup:set_edition(og_edition,true)
+        end
+    elseif joker_to_main_mode == 2 then
+        local ate = false
+
+        if og_edition and existingJoker and not existingJoker:get_edition() then
+            ate = true
+            existingJoker:set_edition(og_edition,true)
+        end
+
+        if existingJoker and existingJoker.ability.extra.currentEidolon < 6 then
+            existingJoker.ability.extra.currentEidolon = existingJoker.ability.extra.currentEidolon + 1
+        elseif not ate then --No.
+            local dup = SMODS.create_card({set = 'Joker', area = BalatroSR.hsr_gacha_results_area, skip_materialize = true, key = "j_hsr_"..cardName, no_edition = true})
+            dup:add_to_deck()
+            G.jokers:emplace(dup)
+            if og_edition then
+                dup:set_edition(og_edition,true)
+            end
+        end
     end
 end
 
@@ -1255,9 +1293,27 @@ BalatroSR.readDebuffs = function(card)
                         ret["elements"][valName] = (ret["elements"][valName] or 0) + (valValue/100 * stack)
                     elseif valName == "text" then
                         local supposedText = valValue
+                        local needToRemove = false
                         if debuffVals["duration"] then
+                            needToRemove = true
+                            if supposedText == valValue then
+                                supposedText = supposedText.." ("
+                            end
                             local currentDuration = (card.ability[debuffName.."_duration"] or "Something went wrong.")
-                            supposedText = supposedText.." ("..currentDuration.." turn(s) remaining)"
+                            supposedText = supposedText..currentDuration.." turn(s) remaining, "
+                        end
+
+                        if debuffVals["max_stack"] then
+                            needToRemove = true
+                            if supposedText == valValue then
+                                supposedText = supposedText.." ("
+                            end
+                            local currentStack = (card.ability[debuffName] or "Something went wrong.")
+                            supposedText = supposedText.."Stack: "..currentStack..", "
+                        end
+
+                        if needToRemove then
+                            supposedText = supposedText:sub(1,#supposedText-2)..")"
                         end
 
                         ret["text"][#ret["text"]+1] = supposedText
@@ -1317,7 +1373,7 @@ BalatroSR.randomizeTable = function(table)
         end
 
         for _ = 1,howMany do
-            local randomIndex = pseudorandom_element(indexes)
+            local randomIndex = pseudorandom_element(indexes,pseudoseed("randomizeTableSeed"))
             if randomIndex then
                 ret[randomIndex] = table[randomIndex]        
                 
@@ -1378,7 +1434,9 @@ end
 
 G.FUNCS.hsr_can_gacha = function(e) --Checking whether you can use the Warp Tickets.
     local card = e.config.ref_table
-    if G.GAME.dollars >= card.config.center.cost then
+    local valueToPutInIf = Talisman and to_big and to_big(G.GAME.dollars):gte(card.config.center.cost) or G.GAME.dollars >= to_big(card.config.center.cost)
+
+    if valueToPutInIf then
         e.config.colour = G.C.UI.BACKGROUND_DARK
         e.config.button = 'hsr_gacha'
     else
@@ -1389,12 +1447,30 @@ end
 
 G.FUNCS.hsr_can_to_joker = function(e) --Checking whether you can add Jokers from Gacha Results to Joker Area.
     local card = e.config.ref_table
-    if #G.jokers.cards < G.jokers.config.card_limit then
-        e.config.colour = G.C.UI.BACKGROUND_DARK
-        e.config.button = 'hsr_to_joker'
-    else
-        e.config.colour = G.C.UI.BACKGROUND_INACTIVE
-        e.config.button = nil
+    if joker_to_main_mode == 1 then
+        if #G.jokers.cards < G.jokers.config.card_limit then
+            e.config.colour = G.C.UI.BACKGROUND_DARK
+            e.config.button = 'hsr_to_joker'
+        else
+            e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+            e.config.button = nil
+        end
+    elseif joker_to_main_mode == 2 then
+        local findJoker = nil
+        for _,v in ipairs(G.jokers.cards or {}) do
+            if isHSRJoker(v) and v.config.center.key == card.config.center.key then
+                findJoker = v
+                break
+            end
+        end
+
+        if (findJoker and findJoker.ability.extra.currentEidolon < 6) or (findJoker and not findJoker:get_edition() and card:get_edition()) or (#G.jokers.cards < G.jokers.config.card_limit and not findJoker) then
+            e.config.colour = G.C.UI.BACKGROUND_DARK
+            e.config.button = 'hsr_to_joker'
+        else
+            e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+            e.config.button = nil
+        end
     end
 end
 

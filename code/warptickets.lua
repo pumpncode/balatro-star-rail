@@ -417,17 +417,7 @@ SMODS.Consumable{
     key = 'starrailpass', 
     set = 'WarpTickets', 
     atlas = 'Jokers', 
-    pos = {x = 0, y = 0}, 
-    loc_txt = {
-        name = 'Star Rail Pass', 
-        text = { 
-            'Roll #1# time(s) with different chances.',
-            '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker.{}',
-            '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker.{}',
-            '{C:inactive,s:0.6}0.6% to get a 5 stars Standard Joker.{}',
-            'Pity: #2#',
-        }
-    },
+    pos = {x = 0, y = 0},
     cost = 10,
     unlocked = true,
     discovered = true,
@@ -482,21 +472,6 @@ SMODS.Consumable{
     set = 'WarpTickets', 
     atlas = 'Jokers', 
     pos = {x = 1, y = 0}, 
-    loc_txt = {
-        name = 'Star Rail Special Pass', 
-        text = { 
-            'Roll #1# time(s) with different chances.',
-            '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker.{}',
-            '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker.{}',
-            '{C:inactive,s:0.6}0.3% to get a 5 stars Standard Joker.{}',
-            '{C:inactive,s:0.6}0.3% to get a 5 stars Special Joker.{}',
-            'Pity: #7#',
-            '#2#',
-            '{C:inactive,s:0.8}Featured 5-Star:{} {C:attention,s:0.8}#3#{}',
-            '{C:inactive,s:0.8}Featured 4-Star:{} {C:attention,s:0.8}#4#{}',
-            '{C:inactive,s:0.6}[Banner #5#/#6#]{}',
-        }
-    },
     cost = 15,
     unlocked = true,
     discovered = true,
@@ -526,7 +501,7 @@ SMODS.Consumable{
         if selectedBanner then
             for name,v in pairs(selectedBanner) do
                 if name == "Name" then
-                    card.ability.extra.bannerName = v
+                    card.ability.extra.bannerName = localize(v)
                 elseif name == "FourStars" then
                     card.ability.extra.featured4 = ""
                     for _,p in pairs(v) do
