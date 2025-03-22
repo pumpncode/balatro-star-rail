@@ -19,7 +19,7 @@ SMODS.Booster({
     group_key = 'hsr_relic_pack',
     pos = { x = 0, y = 5 },
     config = {extra = 4, choose = 2},
-    weight = 5,
+    weight = 10,
     cost = 5,
     draw_hand = false,
     discovered = true,  
