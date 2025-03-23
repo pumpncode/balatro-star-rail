@@ -3176,6 +3176,8 @@ SMODS.Joker{ --Qingque
       if context.individual and context.cardarea == G.play then
          local qq_xmult = 1
          local qq_xchips = 1
+         local qq_money = 0
+
          if card.ability["qq_cherryontop"] then
             card.ability["qq_cherryontop_triggered"] = true
             if card.ability.extra.currentEidolon >= 6 then
@@ -3184,7 +3186,8 @@ SMODS.Joker{ --Qingque
                qq_xmult = qq_xmult + 3
             end
 
-            qq_xchips = qq_xchips + 3
+            qq_xchips = qq_xchips + 1
+            qq_money = qq_money + 1
 
             if card.ability.extra.currentEidolon >= 1 then
                qq_xmult = qq_xmult * 1.1
@@ -3192,11 +3195,20 @@ SMODS.Joker{ --Qingque
             end
          end
 
-         return {
-            xmult = calculateBaseMulti(card,card.ability.extra.element,qq_xmult,nil,false,true,context.other_card),
-            xchips = calculateBaseMulti(card,card.ability.extra.element,qq_xchips,nil,false,true,context.other_card),
-            card = card,
-         }
+         if qq_money > 0 then
+            return {
+               xmult = calculateBaseMulti(card,card.ability.extra.element,qq_xmult,nil,false,true,context.other_card),
+               xchips = calculateBaseMulti(card,card.ability.extra.element,qq_xchips,nil,false,true,context.other_card),
+               dollars = qq_money,
+               card = card,
+            }
+         else
+            return {
+               xmult = calculateBaseMulti(card,card.ability.extra.element,qq_xmult,nil,false,true,context.other_card),
+               xchips = calculateBaseMulti(card,card.ability.extra.element,qq_xchips,nil,false,true,context.other_card),
+               card = card,
+            }
+         end
       end
 
       if context.final_scoring_step and context.cardarea == G.jokers and not context.blueprint and not context.retrigger_joker then
