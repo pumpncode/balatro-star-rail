@@ -903,7 +903,7 @@ end
 function clearBuffJoker(card, other_joker, buff) --Clear certain buffs from a Joker.
    if other_joker and buff then
       if type(buff) == "string" then
-         for existing_buff,_ in pairs(other_joker.ability) do
+         for existing_buff,_ in pairs(other_joker.ability or {}) do
             if existing_buff == buff then
                other_joker.ability[buff] = nil
                if other_joker.ability[buff.."_duration"] then
