@@ -1223,7 +1223,7 @@ function Card:generate_UIBox_ability_table()
 
 	local center_obj = self.config.center
 
-	if center_obj and center_obj.discovered and ((center_obj.set and G.localization.descriptions[center_obj.set] and G.localization.descriptions[center_obj.set][center_obj.key].subtitle) or center_obj.subtitle) then
+	if string.find(center_obj.key or "", "_hsr_") and center_obj and center_obj.discovered and ((center_obj.set and G.localization.descriptions[center_obj.set] and G.localization.descriptions[center_obj.set][center_obj.key].subtitle) or center_obj.subtitle) then
 
 		if ret.name and ret.name ~= true then
 			local text = ret.name
