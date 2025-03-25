@@ -168,4 +168,102 @@ SMODS.Sticker{ -- Sticker to show debuffs on Playing Cards. (pc stands for playi
     end
 }
 
---i genuinely wish you die, bepis.
+SMODS.Sticker{
+    key = 'j_buff', --WHY DOSESNT THIS WORK
+    atlas = 'misc_stickers',
+    pos = { x = 99, y = 99}, --Invisible sticker.
+
+    apply = function(self, card, val)
+        if card and card.ability then
+            card.ability[self.key] = val 
+        end
+    end,
+
+    loc_vars = function(self, info_queue, card)
+        if not cardHasBuff(card) then
+            SMODS.Stickers["hsr_j_buff"]:apply(card,false)
+        end
+
+        local var = "None"
+        local var2 = ""
+        local buff_text = (BalatroSR.readBuffs(card))["text"]
+
+        for _,v in ipairs(buff_text) do
+            local supposedText = v
+
+            if var == "None" then
+                var = supposedText
+            else
+                var = var.." | "..supposedText
+            end
+        end
+
+        local _,numOfSections = var:gsub("|","")
+        if numOfSections >= 2 then
+            local pos = 1
+            local diffSections = {}
+            local divided = {}
+            for i = 1, #var do
+                local letter = var:sub(i,i)
+                if letter == "|" then
+                    diffSections[#diffSections+1] = {
+                        ["min"] = pos,
+                        ["max"] = i-2,
+                    }
+                    pos = i+2
+                end
+            end
+
+            diffSections[#diffSections+1] = {
+                ["min"] = pos,
+                ["max"] = #var,
+            }
+
+            for _,v in ipairs(diffSections) do
+                divided[#divided+1] = var:sub(v["min"],v["max"])
+            end
+
+            local p_var = nil
+            local p_var2 = nil
+
+            local p_var_sections = math.ceil((numOfSections + 1)/2)
+            local p_var2_sections = (numOfSections + 1) - p_var_sections
+
+            for i = 1,p_var_sections do
+                if not p_var then
+                    p_var = divided[i]
+                else
+                    p_var = p_var.." | "..divided[i]
+                end
+            end
+
+            for i = 1,p_var2_sections do
+                if not p_var2 then
+                    p_var2 = divided[i + p_var_sections]
+                else
+                    p_var2 = p_var2.." | "..divided[i + p_var_sections]
+                end
+            end
+
+            var = p_var
+            var2 = p_var2
+        end
+        
+		return { vars = {var or "None", var2} }
+        --so like, how is your day
+        --i want to kill myself
+	end,
+
+    default_compat = true,
+    no_collection = true,
+    order = 5,
+
+    calculate = function(self, card, context) 
+        if not cardHasBuff(card) then
+            SMODS.Stickers["hsr_j_buff"]:apply(card,false)
+        end
+    end
+}
+
+
+--i genuinely wish you die.

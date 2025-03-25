@@ -630,7 +630,7 @@ return { --remind me to work on this
                     "For each card with the same base {C:attention}Suit{} in played hand, increases {C:attention}Tile{} by 1",
                     "When {C:attention}Tile{} is 4, resets to 0 and enters {C:attention}Cherry on Top!{} state",
                     "{C:inactive}If Joker has {}{C:attention}Cherry on Top!{}{C:inactive}:",
-                    "{C:inactive}- Scored cards give {}{C:white,X:mult}X4{}{C:inactive} Mult{}",
+                    "{C:inactive}- Scored cards give {}{C:white,X:mult}X4{}{C:inactive} Mult, {}{C:white,X:chips}X2{}{C:inactive} Chips, {}{C:money}$1{}",
                     "{C:inactive}- Exits {}{C:attention}Cherry on Top!{}{C:inactive} state at the end of hand{}",
                     "{C:inactive}[Current Tiles: #31#]{}"
                 }
@@ -638,8 +638,8 @@ return { --remind me to work on this
             ["j_hsr_Qingque2"] = {
                 name = "Qingque",
                 text = {
-                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {C:attention,s:0.7}Cherry on Top!{}{s:0.7} state gives 10% more Mult{}",
-                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When {}{C:inactive,s:0.7}A Scoop of Moon{}{s:0.7} is triggered, increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5% up to 4 times, resets at the end of round{}",
+                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {C:attention,s:0.7}Cherry on Top!{}{s:0.7} state gives 10% more Mult and Chips{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When {}{C:attention,s:0.7}A Scoop of Moon{}{s:0.7} is triggered, increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5% up to 4 times, resets at the end of round{}",
                     '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5%{}',
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}In {}{C:attention,s:0.7}Cherry on Top!{}{s:0.7} state, there is a fixed 75% chance to retrigger each played card once{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 7%{}',
@@ -769,6 +769,14 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}#2#{}',
                 },
             },
+            hsr_j_buff = {
+                name = "Buffs",
+                text = {
+                    '{E:2}Current Buffs{}',
+                    '{C:inactive,s:0.8}#1#{}',
+                    '{C:inactive,s:0.8}#2#{}',
+                },
+            },
             hsr_dot_shock = {
                 name = "Shock",
                 text = {
@@ -810,6 +818,10 @@ return { --remind me to work on this
     },
     misc={
         dictionary = {
+            k_hsr_3stars = "3-Stars",
+            k_hsr_4stars = "4-Stars",
+            k_hsr_5stars = "5-Stars",
+
             hsr_m7_message = "Glacial Cascade!",
             hsr_danheng_message = "Ethereal Dream!",
             hsr_pela_message = "Exposed!",

@@ -10,7 +10,7 @@ local allFolders = {
 local allFiles = {
     --["none"] = {"animatedSprite"},
     ["none"] = {},
-    ["code"] = {"bepis_shenanigans", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
+    ["code"] = {"bepis_shenanigans", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
 } --Same goes with this.
 
 local joker_to_main_mode = 2 
@@ -229,11 +229,13 @@ local hsrText = { --The core of EVERYTHING.
         - atkMulti: Increase Joker's stat by that amount.
         - elementMulti: Increase Joker's stat by that amount.
         - speed: Increase Joker's stat by that amount.
+        - text: Add text to Jokers if this is declared.
         - cooldownRegenBonus: :3 (Due to how priorities work, if you want this to work, you will have to increase duration by 1 more than it should be. For example, if you want it to last for 1 turn then put the duration to 2.)
         ]]
             Yanqing = {
                 ["yanqing_soulsteel_sync"] = {
                     permBuff = true,
+                    text = "Soulsteel Sync",
                 },
                 ["yanqing_soulsteel_synce2"] = {
                     permBuff = true,
@@ -279,12 +281,14 @@ local hsrText = { --The core of EVERYTHING.
                     duration = 3,
                     bee = 1.5,
                     atkMulti = 1.5,
+                    text = "Benediction"
                 },
                 ["tingyun_benediction1"] = {
                     duration = 3,
                     bee = 1.5,
                     atkMulti = 1.5,
                     mult = 15,
+                    text = "Benediction"
                 },
                 ["tingyun_benediction2"] = {
                     duration = 3,
@@ -292,6 +296,7 @@ local hsrText = { --The core of EVERYTHING.
                     atkMulti = 1.5,
                     mult = 15,
                     cooldownRegenBonus = 1,
+                    text = "Benediction"
                 },
                 ["tingyun_e3"] = {
                     remain_end_of_round = true,
@@ -303,6 +308,7 @@ local hsrText = { --The core of EVERYTHING.
                     atkMulti = 1.7,
                     mult = 15,
                     cooldownRegenBonus = 1,
+                    text = "Benediction"
                 },
                 ["tingyun_benediction5"] = {
                     duration = 3,
@@ -310,6 +316,7 @@ local hsrText = { --The core of EVERYTHING.
                     atkMulti = 1.7,
                     mult = 15,
                     cooldownRegenBonus = 1,
+                    text = "Benediction"
                 },
                 ["tingyun_benediction6"] = {
                     duration = 3,
@@ -318,6 +325,7 @@ local hsrText = { --The core of EVERYTHING.
                     mult = 15,
                     xMult = 1.5,
                     cooldownRegenBonus = 1,
+                    text = "Benediction"
                 },
             },
             Asta = {
@@ -326,10 +334,12 @@ local hsrText = { --The core of EVERYTHING.
                     max_stack = 4,
                     mult = 5,
                     atkMulti = 1.05,
+                    text = "Astrometry"
                 },
                 ["asta_astral_blessing"] = {
                     duration = 3,
                     speed = 50,
+                    text = "Astral Blessing"
                 },  
             },
             M7 = {
@@ -1244,7 +1254,8 @@ BalatroSR.readBuffs = function(card)
         ["chip"] = 0 + relicBonus["extraChips"],
         ["xMult"] = 1 + (relicBonus["extraxMult"] - 1),
         ["xChip"] = 1 + (relicBonus["extraxChip"] - 1),
-        ["alike"] = relicBonus["alike"]
+        ["alike"] = relicBonus["alike"],
+        ["text"] = {},
     }
 
     local allBuffs = hsrText["CardStats"]["CharacterBuffs"]
@@ -1258,6 +1269,32 @@ BalatroSR.readBuffs = function(card)
                         if stuffName == spcBuffName then
                             if stuffName == "atkMulti" or stuffName == "bee" or stuffName == "elementMulti" or stuffName == "xMult" or stuffName == "xChip" then
                                 ret[stuffName] = ret[stuffName] + ((spcBuff - 1) * (cardAbility[buffName.."_stack"] or 1))
+                            elseif stuffName == "text" then
+                                local supposedText = spcBuff
+                                local needToRemove = false
+                                if buff["duration"] then
+                                    needToRemove = true
+                                    if supposedText == spcBuff then
+                                        supposedText = supposedText.." ("
+                                    end
+                                    local currentDuration = (card.ability[buffName.."_duration"] or "Something went wrong.")
+                                    supposedText = supposedText..currentDuration.." turn(s) remaining, "
+                                end
+        
+                                if buff["max_stack"] then
+                                    needToRemove = true
+                                    if supposedText == spcBuff then
+                                        supposedText = supposedText.." ("
+                                    end
+                                    local currentStack = (card.ability[buffName.."_stack"] or "Something went wrong.")
+                                    supposedText = supposedText.."Stack: "..currentStack..", "
+                                end
+        
+                                if needToRemove then
+                                    supposedText = supposedText:sub(1,#supposedText-2)..")"
+                                end
+        
+                                ret["text"][#ret["text"]+1] = supposedText
                             else
                                 ret[stuffName] = ret[stuffName] + (spcBuff * (cardAbility[buffName.."_stack"] or 1))
                             end

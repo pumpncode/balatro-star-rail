@@ -533,6 +533,55 @@ function cardHasDebuff(cardInHand, debuffs) --Check if a card has debuffs, or sp
    end
 end
 
+function cardHasBuff(card,specificBuff) --Used to check if a HSR Joker has the listed buffs (can be table or string), or if specificBuff is left empty, simply check if it has buffs.
+   local cardAbility = card.ability or {}
+   local allBuffs = CardStats["CharacterBuffs"]
+   if not specificBuff then --Check if the Joker has any buff at all.
+      local hasBuff = false
+
+      for buffName,value in pairs(cardAbility) do
+         if hasBuff then break end
+         for _,chr in pairs(allBuffs) do
+            if hasBuff then break end
+            for chrBuffName,_ in pairs(chr) do
+               if buffName == chrBuffName and value then
+                  hasBuff = true
+                  break
+               end
+            end
+         end
+      end
+
+      if hasBuff then
+         return true
+      else
+         return false
+      end
+   elseif specificBuff then --Check if the Joker has the listed buffs.
+      if type(specificBuff) == "table" then
+         local found = {}
+
+         for buffName,_ in ipairs(specificBuff) do
+            if cardAbility[buffName] then
+               found[#found+1] = buffName
+            end
+         end
+
+         if found == specificBuff then
+            return true
+         else
+            return false
+         end
+      elseif type(specificBuff) == "string" then
+         if cardAbility[specificBuff] then
+            return true
+         else
+            return false
+         end
+      end
+   end
+end
+
 function clearCardDebuff(cardInHand, debuff, stack_to_remove) --To clear specific debuffs from playing cards. If stack is declared, reduces by that amount of stacks. Else, removes the debuff entirely.
    if cardInHand.ability and cardHasDebuff(cardInHand,debuff) then
       local findDebuff = nil
@@ -592,6 +641,9 @@ function clearCardDebuff(cardInHand, debuff, stack_to_remove) --To clear specifi
          end
       end
 
+      if not cardHasDebuff(cardInHand) then
+         SMODS.Stickers["hsr_pc_debuff"]:apply(cardInHand,false)
+      end
    end
 end
 
@@ -888,6 +940,8 @@ function buffJoker(card, other_joker, buff) --Grant Jokers buffs.
       end
    end
 
+   SMODS.Stickers["hsr_j_buff"]:apply(other_joker,true)
+
    G.E_MANAGER:add_event(Event({
       trigger = 'before',
       delay = 0.0,
@@ -903,7 +957,7 @@ end
 function clearBuffJoker(card, other_joker, buff) --Clear certain buffs from a Joker.
    if other_joker and buff then
       if type(buff) == "string" then
-         for existing_buff,_ in pairs(other_joker.ability) do
+         for existing_buff,_ in pairs(other_joker.ability or {}) do
             if existing_buff == buff then
                other_joker.ability[buff] = nil
                if other_joker.ability[buff.."_duration"] then
@@ -913,6 +967,10 @@ function clearBuffJoker(card, other_joker, buff) --Clear certain buffs from a Jo
                   other_joker.ability[buff.."_stack"] = nil
                end
             end
+         end
+
+         if not cardHasBuff(other_joker) then
+            SMODS.Stickers["hsr_j_buff"]:apply(other_joker,false)
          end
       elseif type(buff) == "table" then
          for i,v in pairs(buff) do
@@ -925,6 +983,10 @@ function clearBuffJoker(card, other_joker, buff) --Clear certain buffs from a Jo
                   other_joker.ability[v.."_stack"] = nil
                end
             end
+         end
+
+         if not cardHasBuff(other_joker) then
+            SMODS.Stickers["hsr_j_buff"]:apply(other_joker,false)
          end
       end
    end
@@ -1166,55 +1228,6 @@ function addToDestroy(card, a) --"a" must be a table of playing cards.
    end
 end
 
-BalatroSR.checkForBuff = function(card,specificBuff) --Used to check if a HSR Joker has the listed buffs (can be table or string), or if specificBuff is left empty, simply check if it has buffs.
-   local cardAbility = card.ability
-   local allBuffs = CardStats["CharacterBuffs"]
-   if not specificBuff then --Check if the Joker has any buff at all.
-      local hasBuff = false
-
-      for buffName,value in pairs(cardAbility) do
-         if hasBuff then break end
-         for _,chr in pairs(allBuffs) do
-            if hasBuff then break end
-            for chrBuffName,_ in pairs(chr) do
-               if buffName == chrBuffName and value then
-                  hasBuff = true
-                  break
-               end
-            end
-         end
-      end
-
-      if hasBuff then
-         return true
-      else
-         return false
-      end
-   elseif specificBuff then --Check if the Joker has the listed buffs.
-      if type(specificBuff) == "table" then
-         local found = {}
-
-         for buffName,_ in ipairs(specificBuff) do
-            if cardAbility[buffName] then
-               found[#found+1] = buffName
-            end
-         end
-
-         if found == specificBuff then
-            return true
-         else
-            return false
-         end
-      elseif type(specificBuff) == "string" then
-         if cardAbility[specificBuff] then
-            return true
-         else
-            return false
-         end
-      end
-   end
-end
-
 --UI-related functions.
 
 local Card_generate_UIBox_ability_table = Card.generate_UIBox_ability_table;
@@ -1223,7 +1236,7 @@ function Card:generate_UIBox_ability_table()
 
 	local center_obj = self.config.center
 
-	if center_obj and center_obj.discovered and ((center_obj.set and G.localization.descriptions[center_obj.set] and G.localization.descriptions[center_obj.set][center_obj.key].subtitle) or center_obj.subtitle) then
+	if string.find(center_obj.key or "", "_hsr_") and center_obj and center_obj.discovered and ((center_obj.set and G.localization.descriptions[center_obj.set] and G.localization.descriptions[center_obj.set][center_obj.key].subtitle) or center_obj.subtitle) then
 
 		if ret.name and ret.name ~= true then
 			local text = ret.name
@@ -1611,7 +1624,7 @@ SMODS.Joker{ --Literal Trash
       },
    },
    atlas = 'Jokers',
-   rarity = 1,
+   rarity = "hsr_3stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -1706,7 +1719,7 @@ SMODS.Joker{ --Arlan
         },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -1819,7 +1832,7 @@ SMODS.Joker{ --March 7th (my beloved)
         },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -1970,7 +1983,7 @@ SMODS.Joker{ --Dan Heng
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -2010,7 +2023,7 @@ SMODS.Joker{ --Dan Heng
             a = a + 1
          end
 
-         if card.ability.extra.currentEidolon >= 6 and not BalatroSR.checkForBuff(card,"danheng_e6") then
+         if card.ability.extra.currentEidolon >= 6 and not cardHasBuff(card,"danheng_e6") then
             buffJoker(card,card,"danheng_e6")
          end
 
@@ -2020,7 +2033,7 @@ SMODS.Joker{ --Dan Heng
             clearBuffJoker(card,card,"danheng_e1")
          end
 
-         if BalatroSR.checkForBuff(card,"danheng_passive2") then
+         if cardHasBuff(card,"danheng_passive2") then
             clearBuffJoker(card,card,"danheng_passive2")
          end
 
@@ -2032,7 +2045,7 @@ SMODS.Joker{ --Dan Heng
             end
          end
 
-         if BalatroSR.checkForBuff(card) and not card.ability["danheng_e4_used"] and card.ability.extra.currentEidolon >= 4 then
+         if cardHasBuff(card) and not card.ability["danheng_e4_used"] and card.ability.extra.currentEidolon >= 4 then
             buffJoker(card,card,"danheng_e4")
             card.ability["danheng_e4_used"] = true
          end
@@ -2048,7 +2061,7 @@ SMODS.Joker{ --Dan Heng
          if context.other_card:is_suit("Spades") then
             local cardChips = 0
             local extraMult = 0
-            if BalatroSR.checkForBuff(card,"danheng_passive2") then
+            if cardHasBuff(card,"danheng_passive2") then
                cardChips = cardChips + 20
             end
             if card.ability.extra.currentEidolon >= 3 then
@@ -2133,7 +2146,7 @@ SMODS.Joker{ --Sampo
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -2250,7 +2263,7 @@ SMODS.Joker{ --Pela
       }
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -2392,7 +2405,7 @@ SMODS.Joker{ --Natasha
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -2527,7 +2540,7 @@ SMODS.Joker{ --Tingyun
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -2668,7 +2681,7 @@ SMODS.Joker{ --Asta
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -2856,7 +2869,7 @@ SMODS.Joker{ --Herta
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -3014,7 +3027,7 @@ SMODS.Joker{ --Qingque
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -3175,6 +3188,9 @@ SMODS.Joker{ --Qingque
 
       if context.individual and context.cardarea == G.play then
          local qq_xmult = 1
+         local qq_xchips = 1
+         local qq_money = 0
+
          if card.ability["qq_cherryontop"] then
             card.ability["qq_cherryontop_triggered"] = true
             if card.ability.extra.currentEidolon >= 6 then
@@ -3183,15 +3199,29 @@ SMODS.Joker{ --Qingque
                qq_xmult = qq_xmult + 3
             end
 
+            qq_xchips = qq_xchips + 1
+            qq_money = qq_money + 1
+
             if card.ability.extra.currentEidolon >= 1 then
                qq_xmult = qq_xmult * 1.1
+               qq_xchips = qq_xchips * 1.1
             end
          end
 
-         return {
-            xmult = calculateBaseMulti(card,card.ability.extra.element,qq_xmult,nil,false,true,context.other_card),
-            card = card,
-         }
+         if qq_money > 0 then
+            return {
+               xmult = calculateBaseMulti(card,card.ability.extra.element,qq_xmult,nil,false,true,context.other_card),
+               xchips = calculateBaseMulti(card,card.ability.extra.element,qq_xchips,nil,false,true,context.other_card),
+               dollars = qq_money,
+               card = card,
+            }
+         else
+            return {
+               xmult = calculateBaseMulti(card,card.ability.extra.element,qq_xmult,nil,false,true,context.other_card),
+               xchips = calculateBaseMulti(card,card.ability.extra.element,qq_xchips,nil,false,true,context.other_card),
+               card = card,
+            }
+         end
       end
 
       if context.final_scoring_step and context.cardarea == G.jokers and not context.blueprint and not context.retrigger_joker then
@@ -3273,7 +3303,7 @@ SMODS.Joker{ --Serval
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -3441,7 +3471,7 @@ SMODS.Joker{ --Hook
       },
    },
    atlas = 'Jokers',
-   rarity = 3,
+   rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -3629,7 +3659,7 @@ SMODS.Joker{ --Yanqing
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -3766,7 +3796,7 @@ SMODS.Joker{ --Welt
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -3961,7 +3991,7 @@ SMODS.Joker{ --Himeko
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -4181,7 +4211,7 @@ SMODS.Joker{ --Bailu
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -4372,7 +4402,7 @@ SMODS.Joker{ --Jing Yuan
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -4594,7 +4624,7 @@ SMODS.Joker{ --Clara
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -4749,7 +4779,7 @@ SMODS.Joker{ --Seele
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -4919,7 +4949,7 @@ SMODS.Joker{ --Bronya
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
@@ -5058,7 +5088,7 @@ SMODS.Joker{ --Kafka
       },
    },
    atlas = 'Jokers',
-   rarity = 4,
+   rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
