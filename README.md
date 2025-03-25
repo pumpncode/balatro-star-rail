@@ -29,8 +29,7 @@ Instructions can be found [here](https://github.com/Steamopollys/Steamodded/wiki
 # Credits
 ### Individuals
 Thank you:
- mysthaps
- N' (and his JoyousSpring mod, check it out!)
+ mysthaps, N' (and his JoyousSpring mod, check it out!)
  
  ...and a lot more for helping with the creation of this mod!
  The modding community has been INCREDIBLY helpful, allowing my first ever mod to be made and played!
