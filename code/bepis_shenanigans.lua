@@ -1,7 +1,7 @@
 --Welcome to where I store ALL of my (maybe) useful functions!
 --Feel free to grab anything here :3
 
-BalatroSR.enhanceCard = function(card,other_card,enhancement,after,immediate,no_effects,haltunhighlight) --Enhance cards.
+BalatroSR.enhanceCard = function(_,other_card,enhancement,after,immediate,no_effects,haltunhighlight) --Enhance cards.
     if not no_effects then
         for _,othercard in ipairs(other_card) do
            G.E_MANAGER:add_event(Event({
@@ -730,7 +730,7 @@ BalatroSR.turnIDToText = function(a) --Convert ID to Rank for visualization purp
     end
 end
 
-BalatroSR.findLocation = function(card,area)
+BalatroSR.findLocation = function(card,area) --Find the location of a card within its area.
     local pos = nil
     for i,v in ipairs(area.cards) do
         if card == v then
@@ -740,4 +740,65 @@ BalatroSR.findLocation = function(card,area)
 
     if not pos then print("Card wasn't found in the given area. [function: findLocation]") return end
     return pos
+end
+
+BalatroSR.getCardChips = function(card) --Get the amount of chips given by a playing card, including Enhancements and Editions. (I don't think modded enhancements and stuff will work with this.)
+    local ret = card:get_chip_bonus()
+
+    if card:get_edition() and card.edition.key == "e_foil" then
+        ret = ret + G.P_CENTERS.e_foil.config.extra
+    end
+
+    return ret or 0
+end
+
+BalatroSR.vanillaSuitCheck = function(area) --Return (x,y,z,w) if area has respectively (Hearts, Clubs, Spades, Diamonds)
+    local heart,club,spade,diamond = false,false,false,false
+    for _,c in ipairs(area) do
+        if c.base and c.base.suit then
+            if c.base.suit == "Hearts" then
+               heart = true
+            elseif c.base.suit == "Clubs" then
+               club = true
+            elseif c.base.suit == "Spades" then
+               spade = true
+            elseif c.base.suit == "Diamonds" then
+               diamond = true
+            end
+         end
+    end
+
+    return heart,club,spade,diamond
+end
+
+BalatroSR.numUniqueSuits = function(area,base) --Check how many unique suits are there in an area.
+    local registeredSuits = {}
+
+    if base then
+        for _,c in ipairs(area) do
+            if c.base and c.base.suit then
+                local registered = false
+                for _,rS in pairs(registeredSuits) do
+                    if rS == c.base.suit then registered = true break end
+                end
+                if not registered then
+                    table.insert(registeredSuits,c.base.suit)
+                end
+            end
+        end
+    else
+        for _,c in ipairs(area) do
+            if c.base and c.base.suit then
+                local registered = false
+                for _,rS in pairs(registeredSuits) do
+                    if c:is_suit(rS) then registered = true break end
+                end
+                if not registered then
+                    table.insert(registeredSuits,c.base.suit)
+                end
+            end
+        end 
+    end
+
+    return #registeredSuits
 end

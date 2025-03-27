@@ -198,6 +198,8 @@ SMODS.Sticker{
             end
         end
 
+        if var == "None" then SMODS.Stickers["hsr_j_buff"]:apply(card,false) end
+
         local _,numOfSections = var:gsub("|","")
         if numOfSections >= 2 then
             local pos = 1

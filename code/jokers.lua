@@ -76,6 +76,7 @@ function calculateBaseMulti(card, element, num, _, isDot, is_x_gain, cardInHand)
             (1 + ((def_reduction or 0)/100)), --Def Reduction
             (1 + ((dmg_taken_multi or 0)/100)), --DMG Taken
             (extraStuff["gainEfficiency"] or 1), --Gain Efficiency
+            G.GAME[element.."_multi"] or 1,
          })
          return FinalRes
       elseif isDot then
@@ -96,6 +97,7 @@ function calculateBaseMulti(card, element, num, _, isDot, is_x_gain, cardInHand)
             (1 + ((dmg_taken_multi or 0)/100)), --DMG Taken
             (1 + (dot_multi or 0)/100), --DOT Multiplier
             (extraStuff["gainEfficiency"] or 1), --Gain Efficiency
+            G.GAME[element.."_multi"] or 1,
          })
          return FinalRes
       end
@@ -213,7 +215,7 @@ function addEidolon(self,card,context) --Eidolon handler for HSR Jokers.
             end
             return true
          end
-        }))
+      }))
    end
 end
 
@@ -415,7 +417,7 @@ function HSRJokerMain(self,card,context) --joker_main for HSR Jokers.
       --Some stuff to make sure x_mult and x_chips will not break themselves under certain circumstances which I will probably already forget if you (or me) are reading this.
       local xMult = extraxMult
       if xMult ~= 1 then
-         xMult = xMult * bee * elementMulti * (extraStuff["gainEfficiency"] or 1)
+         xMult = xMult * bee * elementMulti * (extraStuff["gainEfficiency"] or 1) * (G.GAME[extraStuff.element.."_multi"] or 1)
          if xMult < 1 then --...You wouldn't want Jokers to give x0.1 Mult, would you?
             xMult = 1
          end
@@ -423,7 +425,7 @@ function HSRJokerMain(self,card,context) --joker_main for HSR Jokers.
 
       local xChip = extraxChip
       if xChip ~= 1 then
-         xChip = xChip * bee * elementMulti * (extraStuff["gainEfficiency"] or 1)
+         xChip = xChip * bee * elementMulti * (extraStuff["gainEfficiency"] or 1) * (G.GAME[extraStuff.element.."_multi"] or 1)
          if xChip < 1 then
             xChip = 1
          end
@@ -433,10 +435,10 @@ function HSRJokerMain(self,card,context) --joker_main for HSR Jokers.
       if extraMult ~= 0 or extraChips ~= 0 or xMult ~= 1 or xChip ~= 1 then
          return{
             card = card,
-            chips = extraChips * bee * elementMulti * (extraStuff["gainEfficiency"] or 1),
+            chips = extraChips * bee * elementMulti * (extraStuff["gainEfficiency"] or 1) * (G.GAME[extraStuff.element.."_multi"] or 1),
             x_mult = xMult,
             xchips = xChip,
-            mult = extraMult * bee * elementMulti * (extraStuff["gainEfficiency"] or 1),
+            mult = extraMult * bee * elementMulti * (extraStuff["gainEfficiency"] or 1) * (G.GAME[extraStuff.element.."_multi"] or 1),
             --no_retrigger = true,
          }
       end
@@ -909,15 +911,15 @@ function buffJoker(card, other_joker, buff) --Grant Jokers buffs.
    if not buffConfig then print("Buff is not found in CharacterBuffs.") return true end
    local duration = buffConfig["duration"] or 1
    local permBuff = buffConfig["permBuff"] or false
+   local remain = buffConfig["remain_duration_on_apply"] or false
    local max_stack = buffConfig["max_stack"] or nil
 
    if other_joker.ability then
       if not other_joker.ability[buff] then
          other_joker.ability[buff] = true
          if max_stack then
-            if not other_joker.ability[buff.."_stack"] then
-               other_joker.ability[buff.."_stack"] = 0
-            end
+            other_joker.ability[buff.."_stack"] = 0
+
             if other_joker.ability[buff.."_stack"] < max_stack then
                other_joker.ability[buff.."_stack"] = other_joker.ability[buff.."_stack"] + 1
             end
@@ -926,7 +928,7 @@ function buffJoker(card, other_joker, buff) --Grant Jokers buffs.
             other_joker.ability[buff.."_duration"] = duration
          end
       elseif other_joker.ability[buff] then
-         if not permBuff then
+         if not permBuff and not remain then
             other_joker.ability[buff.."_duration"] = duration --Reset duration.
          end
          if max_stack then
@@ -940,7 +942,9 @@ function buffJoker(card, other_joker, buff) --Grant Jokers buffs.
       end
    end
 
-   SMODS.Stickers["hsr_j_buff"]:apply(other_joker,true)
+   if buffConfig["text"] then
+      SMODS.Stickers["hsr_j_buff"]:apply(other_joker,true)
+   end
 
    G.E_MANAGER:add_event(Event({
       trigger = 'before',
@@ -992,7 +996,7 @@ function clearBuffJoker(card, other_joker, buff) --Clear certain buffs from a Jo
    end
 end
 
-function calculateDOT(card, context, specificDOT, specificCard, multi) --For Jokers who calculate using DOT.
+function calculateDOT(card, context, specificDOT, specificCard, multi, dot_message) --For Jokers who calculate using DOT.
    local cardInHand = specificCard or context.other_card
    local atkMulti = (BalatroSR.readBuffs(card))["atkMulti"]
 
@@ -1019,75 +1023,75 @@ function calculateDOT(card, context, specificDOT, specificCard, multi) --For Jok
          multi = {
          },
       }
-
+   
       local retgains = {}
-
+   
       function tempAddToRet(a,b,c)
-         if c and c == "stack" then
-            gains["multi"]["stack"] = a
-         else
-            if b == "multi" then
-               gains["multi"][#gains["multi"]+1] = a
-            elseif b == "element" then
-               gains["element"] = a
-            elseif string.find(b,"x") then
-               gains[b] = (gains[b] or 1) + (a - 1)
+            if c and c == "stack" then
+               gains["multi"]["stack"] = a
             else
-               gains[b] = (gains[b] or 0) + a
+               if b == "multi" then
+                  gains["multi"][#gains["multi"]+1] = a
+               elseif b == "element" then
+                  gains["element"] = a
+               elseif string.find(b,"x") then
+                  gains[b] = (gains[b] or 1) + (a - 1)
+               else
+                  gains[b] = (gains[b] or 0) + a
+               end
             end
-         end
       end
-
+   
       local sampoConfig = CardStats["config"]["Sampo"]
       local wsConfig = CardStats["CharacterDebuffs"]["Other"]["wind_shear_dot"]
       local ignoreBaseCalc = false
-
+   
       if cardInHand.ability then
          for i,v in pairs(cardInHand.ability) do
-            if BalatroSR.checkForIdenticalDebuff(i,"wind_shear_dot") then
-               if i == "sampo_wind_shear_dot" and cardInHand.ability[i] and cardInHand.ability[i] > 0 then
-                  local Eidolon = (cardInHand.ability["sampo_wind_shear_dot_eidolon"] or 0)
-                  if getHSRJokerName(retCard) == "Sampo" then
-                     Eidolon = card.ability.extra.currentEidolon
-                  end
-                  ignoreBaseCalc = true
-                  tempAddToRet(sampoConfig.element,"element")
-                  if not gains["multi"]["stack"] then
-                     gains["multi"]["stack"] = cardInHand.ability[i]
+               if BalatroSR.checkForIdenticalDebuff(i,"wind_shear_dot") then
+                  if i == "sampo_wind_shear_dot" and cardInHand.ability[i] and cardInHand.ability[i] > 0 then
+                     local Eidolon = (cardInHand.ability["sampo_wind_shear_dot_eidolon"] or 0)
+                     if getHSRJokerName(retCard) == "Sampo" then
+                        Eidolon = card.ability.extra.currentEidolon
+                     end
+                     ignoreBaseCalc = true
+                     tempAddToRet(sampoConfig.element,"element")
+                     if not gains["multi"]["stack"] then
+                        gains["multi"]["stack"] = cardInHand.ability[i]
+                     end
+         
+                     if Eidolon >= 5 then
+                        tempAddToRet(wsConfig.chip,"chips")
+                        tempAddToRet(sampoConfig.e5Buff,"mult")
+                        tempAddToRet(sampoConfig.e4Buff,"baseincrease")
+                        tempAddToRet(2, "multi")
+                        tempAddToRet((1 + sampoConfig.e3Buff/100), "multi")
+                     elseif Eidolon >= 4 then
+                        tempAddToRet(wsConfig.chip,"chips")
+                        tempAddToRet(sampoConfig.e4Buff,"baseincrease")
+                        tempAddToRet(2, "multi")
+                        tempAddToRet((1 + sampoConfig.e3Buff/100), "multi")
+                     elseif Eidolon >= 3 then
+                        tempAddToRet(wsConfig.chip,"chips")
+                        tempAddToRet(2, "multi")
+                        tempAddToRet((1 + sampoConfig.e3Buff/100), "multi")
+                     elseif Eidolon >= 1 then
+                        tempAddToRet(wsConfig.chip,"chips")
+                        tempAddToRet(2, "multi")
+                     else
+                        tempAddToRet(wsConfig.chip,"chips")
+                     end
                   end
       
-                  if Eidolon >= 5 then
+                  if not ignoreBaseCalc then
                      tempAddToRet(wsConfig.chip,"chips")
-                     tempAddToRet(sampoConfig.e5Buff,"mult")
-                     tempAddToRet(sampoConfig.e4Buff,"baseincrease")
-                     tempAddToRet(2, "multi")
-                     tempAddToRet((1 + sampoConfig.e3Buff/100), "multi")
-                  elseif Eidolon >= 4 then
-                     tempAddToRet(wsConfig.chip,"chips")
-                     tempAddToRet(sampoConfig.e4Buff,"baseincrease")
-                     tempAddToRet(2, "multi")
-                     tempAddToRet((1 + sampoConfig.e3Buff/100), "multi")
-                  elseif Eidolon >= 3 then
-                     tempAddToRet(wsConfig.chip,"chips")
-                     tempAddToRet(2, "multi")
-                     tempAddToRet((1 + sampoConfig.e3Buff/100), "multi")
-                  elseif Eidolon >= 1 then
-                     tempAddToRet(wsConfig.chip,"chips")
-                     tempAddToRet(2, "multi")
-                  else
-                     tempAddToRet(wsConfig.chip,"chips")
+                     if (gains["multi"]["stack"] or -1) ~= cardInHand.ability.wind_shear_dot then
+                        tempAddToRet(cardInHand.ability.wind_shear_dot,nil,"stack")   
+                     end
                   end
                end
-   
-               if not ignoreBaseCalc then
-                  tempAddToRet(wsConfig.chip,"chips")
-                  if (gains["multi"]["stack"] or -1) ~= cardInHand.ability.wind_shear_dot then
-                     tempAddToRet(cardInHand.ability.wind_shear_dot,nil,"stack")   
-                  end
-               end
-            end
          end
-
+   
          local thingies = {"mult","chips","x_mult","xchips"}
          if gains["multi"]["stack"] then
             for i,v in pairs(thingies) do
@@ -1129,6 +1133,18 @@ function calculateDOT(card, context, specificDOT, specificCard, multi) --For Jok
 
             local burnConfig = CardStats["CharacterDebuffs"]["Other"]["burn_dot"]
             addToRet("mult", calculateBaseMulti(retCard,"Fire",burnConfig.mult * stack, nil,true,nil,cardInHand))
+         end
+      end
+   end
+
+   function BleedCalculate(retCard)
+      for i,v in pairs(cardInHand.ability) do
+         if BalatroSR.checkForIdenticalDebuff(i,"bleed_dot") then
+            local stack = v or 1
+            if type(stack) ~= "number" then stack = 1 end
+
+            local bleedConfig = CardStats["CharacterDebuffs"]["Other"]["bleed_dot"]
+            addToRet("mult", calculateBaseMulti(retCard,"Physical",BalatroSR.getCardChips(cardInHand)/bleedConfig.chip_to_mult_divide,nil,true,nil,cardInHand))
          end
       end
    end
@@ -1184,6 +1200,8 @@ function calculateDOT(card, context, specificDOT, specificCard, multi) --For Jok
          WindShearCalculate(card)
       elseif specificDOT == "Shock" then
          ShockCalculate(card)
+      elseif specificDOT == "Bleed" then
+         BleedCalculate(card)
       end
    else
       if getHSRJokerName(card) == "Kafka" then
@@ -1212,12 +1230,15 @@ function calculateDOT(card, context, specificDOT, specificCard, multi) --For Jok
       if returnXChips ~= 1 then returnXChips = returnXChips * atkMulti * (multi or 1) end
 
       return{
-         card = ret.card,
+         card = cardInHand or ret.card,
          mult = ret.mult * (multi or 1),
          chips = ret.chips* (multi or 1),
          x_mult = returnXMult,
-         xchips = returnXChips
+         xchips = returnXChips,
+         message = dot_message or nil,
       }
+   else
+      return {}
    end --Returning everything.
 
 end
@@ -1655,6 +1676,14 @@ SMODS.Joker{ --Literal Trash
    calculate = function(self, card, context)
       local extraStuff = card.ability.extra
       local ret = HSRContextHandler(self,card,context)
+
+      if context.ending_shop then
+         for i,_ in pairs(context) do
+            print(i)
+         end
+         print("------------")
+      end
+
       if ret then
          return ret
       end
@@ -1699,6 +1728,8 @@ SMODS.Joker{ --Literal Trash
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.money,
       }
@@ -1813,6 +1844,8 @@ SMODS.Joker{ --Arlan
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
       }
       hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar)
@@ -1962,6 +1995,8 @@ SMODS.Joker{ --March 7th (my beloved)
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.ultCooldown,
          center.ability.extra.ultRequiredCooldown
@@ -2125,10 +2160,12 @@ SMODS.Joker{ --Dan Heng
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.ultCooldown,
          center.ability.extra.ultRequiredCooldown
-    }
+      }
     hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar)
    end,
 
@@ -2236,6 +2273,8 @@ SMODS.Joker{ --Sampo
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.windShearMaxStacks,
          center.ability.extra.windShearChips,
@@ -2245,9 +2284,22 @@ SMODS.Joker{ --Sampo
          center.ability.extra.e6Buff,
       }
 
-      info_queue[#info_queue+1] = {set = 'Other', key = 'hsr_dot_wind_shear'}
+      local siq = {
+         {
+            {
+               set = 'Other',
+               key = 'hsr_dot_wind_shear'
+            }
+         },
+         {
+            {
+               set = 'Other',
+               key = 'hsr_dot_wind_shear'
+            }
+         },
+      }
 
-      hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar)
+      hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar,siq)
    end,
 }
 
@@ -2381,6 +2433,8 @@ SMODS.Joker{ --Pela
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.mult,
          center.ability.extra.e2mult,
@@ -2517,6 +2571,8 @@ SMODS.Joker{ --Natasha
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.hand,
          center.ability.extra.ultCooldown,
@@ -2660,6 +2716,8 @@ SMODS.Joker{ --Tingyun
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          (center.ability.extra.atkMulti - 1) * 100,
          (center.ability.extra.bee - 1) * 100,
@@ -2828,6 +2886,8 @@ SMODS.Joker{ --Asta
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          (center.ability.extra.atkMulti - 1) * 100,
          center.ability.extra.multBuff,
@@ -2840,15 +2900,12 @@ SMODS.Joker{ --Asta
 
       local siq = {
          {
-            {
-               set = 'Other',
-               key = 'hsr_dot_wind_shear'
-            }
+            ignore = true,
          },
          {
             {
                set = 'Other',
-               key = 'hsr_dot_wind_shear'
+               key = 'hsr_dot_burn'
             }
          },
       }
@@ -3009,6 +3066,8 @@ SMODS.Joker{ --Herta
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
     }
     hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar)
    end,
@@ -3283,6 +3342,8 @@ SMODS.Joker{ --Qingque
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other Vars
          center.ability.extra.tile
     }
@@ -3432,6 +3493,8 @@ SMODS.Joker{ --Serval
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other Vars
          (G.GAME.probabilities.normal or 1),
          center.ability.extra.shockChance,
@@ -3623,6 +3686,8 @@ SMODS.Joker{ --Hook
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other Vars
          center.ability.extra.mult
       }
@@ -3646,6 +3711,7 @@ SMODS.Joker{ --Hook
    end,
 
 }
+
 ---5-Star
 SMODS.Joker{ --Yanqing
    key = 'Yanqing',
@@ -3777,6 +3843,8 @@ SMODS.Joker{ --Yanqing
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
       }
 
@@ -3877,10 +3945,7 @@ SMODS.Joker{ --Welt
          for _,v in ipairs(copied2) do
             local multi = 1
             local isUnique = true
-            local card_chip = v:get_chip_bonus()
-            if v:get_edition() and v.edition.key == "e_foil" then
-               card_chip = card_chip + G.P_CENTERS.e_foil.config.extra
-            end
+            local card_chip = BalatroSR.getCardChips(v)
 
             for _,check in pairs(uniqueUsed) do
                if check == v then
@@ -3970,6 +4035,8 @@ SMODS.Joker{ --Welt
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.chip,
          center.ability.extra.xChip,
@@ -4192,6 +4259,8 @@ SMODS.Joker{ --Himeko
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
       }
 
@@ -4379,6 +4448,8 @@ SMODS.Joker{ --Bailu
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.ultCooldown1,
          center.ability.extra.ultRequiredCooldown1,
@@ -4601,6 +4672,8 @@ SMODS.Joker{ --Jing Yuan
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.ultCooldown1,
          center.ability.extra.ultRequiredCooldown1,
@@ -4759,6 +4832,8 @@ SMODS.Joker{ --Clara
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.mult
       }
@@ -4927,10 +5002,11 @@ SMODS.Joker{ --Seele
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.SUITS[center.ability.extra.repeatSuit],G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          string.sub(center.ability.extra.repeatSuit,1,(#center.ability.extra.repeatSuit - 1)),
          BalatroSR.turnIDToText(center.ability.extra.chosenRank),
-         colours = {G.C.SUITS[center.ability.extra.repeatSuit]}
       }
 
       hsr_generate_UI(self,info_queue,center,desc_nodes,specific_vars,full_UI_table,returnVar)
@@ -5068,6 +5144,8 @@ SMODS.Joker{ --Bronya
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.xMult
       }
@@ -5213,6 +5291,8 @@ SMODS.Joker{ --Kafka
          center.ability.extra.ropeName, --28
          center.ability.extra.ropeEffect, --29 
          center.ability.extra.planarsetEffect, --30
+         --Colours
+         colours = {G.C.hsr_colors["hsr_"..string.lower(center.ability.extra.element)]},
          --Other vars
          center.ability.extra.shockMult,
          center.ability.extra.e4Buff,

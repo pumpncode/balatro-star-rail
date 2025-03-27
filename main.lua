@@ -10,7 +10,7 @@ local allFolders = {
 local allFiles = {
     --["none"] = {"animatedSprite"},
     ["none"] = {},
-    ["code"] = {"bepis_shenanigans", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
+    ["code"] = {"bepis_shenanigans", "sounds", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
 } --Same goes with this.
 
 local joker_to_main_mode = 2 
@@ -213,7 +213,12 @@ local hsrText = { --The core of EVERYTHING.
                     max_stack = 5,
                     mult = 5,
                     text = "Burn"
-                }
+                },
+                ["bleed_dot"] = {
+                    max_stack = 2,
+                    chip_to_mult_divide = 2,
+                    text = "Bleed",
+                },
             },
         },
         CharacterBuffs = {--[[All values here are automatically read by buffJoker (check jokers.lua):
@@ -221,6 +226,7 @@ local hsrText = { --The core of EVERYTHING.
         - max_stack: If declared, buff will scale on stacks.
         - permBuff: If declared and is true, buff lasts forever unless it is manually removed. If not declared, permBuff is seen as false.
         - remain_end_of_round: If declared and is true, buff remains at the end of round. If not declared, remain_end_of_round is seen as false.
+        - remain_duration_on_apply: If declared, duration won't be reset when it is applied with another stack.
         - mult: If declared, give mult at end of hand.
         - chip: Similarly, but for chips.
         - xMult: Similarly, but for xmult.
@@ -236,6 +242,7 @@ local hsrText = { --The core of EVERYTHING.
                 ["yanqing_soulsteel_sync"] = {
                     permBuff = true,
                     text = "Soulsteel Sync",
+                    atkMulti = 1.25, --this was missing, too bad bozo :3
                 },
                 ["yanqing_soulsteel_synce2"] = {
                     permBuff = true,
@@ -501,6 +508,15 @@ local hsrText = { --The core of EVERYTHING.
                     atkMulti = 1.07,
                 },
             },
+            Sushang = {
+                ["sushang_e1"] = {
+                    remain_end_of_round = true,
+                    max_stack = 4,
+                    duration = 2,
+                    speed = 25,
+                    text = "Sushang E1"
+                }
+            },
             Others = {
 
             },
@@ -677,6 +693,10 @@ local hsrText = { --The core of EVERYTHING.
             Sushang = {
                 type = "The Hunt",
                 element = "Physical",
+                chosenSuit = "Spades",
+                chanceToBreak = 6,
+                chanceToBleed = 4,
+                chipsOnAttack = 25,
             },
             Serval = {
                 type = "Erudition",
@@ -747,8 +767,9 @@ SMODS.ObjectType {key = 'relics'}
 - G.GAME.SpecialPity <-- If you played HSR or basically any gacha game, you know what this does. This Pity is only used for Special Tickets.
 - G.GAME.FiftyPity <-- The same goes with this.
 - G.GAME.FourStarsFiftyPity <-- Just read the name.
-- G.GAME.
+...i just realized i lost track of this.
 
+- G.GAME.(elementName)_multi <-- Changed by Blinds.
 ]]
 --Variables for Gacha.
 local debug, debugMode = false, 2
@@ -2027,6 +2048,38 @@ BalatroSR.extra_tabs = function()
             end
         },
     }
+end
+
+--Adding custom localization colors, wee
+G.C.hsr_colors = {
+    hsr_wind = darken(HEX("41fa85"),0.2),
+    hsr_physical = HEX("9c9c9c"),
+    hsr_lightning = HEX("c157ff"),
+    hsr_ice = HEX("47b0ed"),
+    hsr_imaginary = HEX("cfbc11"),
+    hsr_quantum = HEX("6b40e3"),
+    hsr_fire = HEX("e02f1b"),
+}
+
+--[[SMODS.Gradient({ keeping blud hostage until i need to add gradients :3
+    key = "PENDULUM_NORMAL",
+    colours = { G.C.JOY.SPELL, G.C.JOY.NORMAL },
+    cycle = 7.5,
+})]]
+
+local loc_colour_ref = loc_colour
+function loc_colour(_c, _default)
+    if not G.ARGS.LOC_COLOURS then
+        loc_colour_ref()
+    end
+
+    --[[G.ARGS.LOC_COLOURS.joy_pendulum_normal = G.C.JOY.PENDULUM //blud is not escaping, sorry]]
+
+    for i,v in pairs(G.C.hsr_colors) do
+        G.ARGS.LOC_COLOURS[i] = v
+    end
+
+    return loc_colour_ref(_c, _default)
 end
 
 local keywordTest = {

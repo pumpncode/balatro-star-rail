@@ -1,17 +1,14 @@
 return { --remind me to work on this
     descriptions = {
         Passive = {
+            --Svarog
             psv_hsr_Svarog_passive1 = {
                 name = 'Elemental Resistance',
                 text = {
-                   '{C:red,E:2}Reduces{} effects of all {C:attention}Physical{}, {C:attention}Ice{}, {C:attention}Quantum{}, and',
-                   '{C:attention}Imaginary{} Jokers (if possible) by 20%',
-                   ' ',
-                   '{C:green,E:2}Increases{} effects of all {C:attention}Fire{}, {C:attention}Lightning{}, and {C:attention}Wind{} Jokers',
-                   '(if possible) by 20%',
+                   '[{C:red}-20%{}] {C:hsr_ice}Ice{}, {C:hsr_physical}Physical{}, {C:hsr_quantum}Quantum{}, {C:hsr_imaginary}Imaginary{}',
                 }
             },
-            psv_hsr_Svarog_passive2 = {
+            psv_hsr_Svarog_passive2 = { --Unused
                 name = 'A Steel Heart Capable of Care',
                 text = {
                     'If {C:attention}Clara{} is in the Joker area, her effects are {C:green,E:2}increased{}',
@@ -21,31 +18,63 @@ return { --remind me to work on this
             psv_hsr_Svarog_passive3 = {
                 name = 'Boost Deployment',
                 text = {
-                    'At the start of phase, Auxiliary Robot Arm Unit',
-                    'becomes {C:green}Active{}',
+                    'Summons 1 {C:attention}Auxiliary Robot Arm Unit{} {C:inactive}(A.A.A.A){}',
                     ' ',
                     'If scored hand has base suits {C:spades}Spades{}, {C:hearts}Hearts{}, {C:clubs}Clubs{},',
-                    'and {C:diamonds}Diamonds{} cards, deactivates Auxiliary Robot Arm Unit',
+                    'and {C:diamonds}Diamonds{}, deactivates an {C:attention}A.A.A.A{}',
                 }
             },
-            psv_hsr_Svarog_passive4 = {
+            psv_hsr_Svarog_passive3_2 = {
+                name = 'Boost Deployment V2.0',
+                text = {
+                    'Summons 2 {C:attention}Auxiliary Robot Arm Unit{} {C:inactive}(A.A.A.A){}',
+                    ' ',
+                    'If scored hand has base suits {C:spades}Spades{}, {C:hearts}Hearts{}, {C:clubs}Clubs{},',
+                    'and {C:diamonds}Diamonds{} cards, deactivates an {C:attention}A.A.A.A{}',
+                }
+            },
+            psv_hsr_Svarog_summon = {
                 name = 'Auxiliary Robot Arm Unit',
                 text = {
-                    'If played hand has no cards with base Suit that is {C:hearts}Hearts{},',
-                    '{C:red,E:2}temporarily debuffs one Joker{}',
+                    'If played hand has no cards with base Suit {C:hearts}Hearts{},',
+                    '{C:red,E:2}debuffs a Joker{}',
                     ' ',
                     '{X:mult,C:white}X0.5{} Mult',
                     '{X:chips,C:white}X0.5{} Chips',
-                    '{C:inactive}(Currently: ACTIVE){}',
                 }
+            },
+            --Cocolia
+            psv_hsr_Cocolia_ER = {
+                name = 'Elemental Resistance',
+                text = {
+                   '[{C:red}-20%{}] {C:hsr_imaginary}Imaginary{}',
+                   '[{C:red}-40%{}] {C:hsr_physical}Physical{}, {C:hsr_wind}Wind{}',
+                   '[{C:red}-60%{}] {C:hsr_ice}Ice{}',
+                }
+            },
+            psv_hsr_Cocolia_passive1 = {
+                name = 'Hoarfrost of Eternal Isolation',
+                text = {
+                    '{C:attention}Leftmost{} played card becomes {C:attention}Glass{}',
+                    '{C:red}Destroys{} {C:attention}rightmost{} played card, reduces {C:mult}Mult{} by',
+                    'its {C:chips}Chips * 5{}'
+                },
+            },
+            psv_hsr_Cocolia_passive2 = {
+                name = 'Chill of Bone-Piercing Coagulation',
+                text = {
+                    'If scored hand has only:',
+                    '- 1 Suit: {C:attention}rightmost{} card',
+                    'becomes {C:attention}Stone{}',
+                },
             },
             psv_hsr_Showdown = {
                 name = 'Final Showdown',
                 text = {
+                    "Can't be debuffed",
                     'Boss Blind has {C:attention}3{} Phases',
                     ' ',
-                    'Advances to the next Phase when score requirement is met,',
-                    'and restores {C:blue}Hands{} to full',
+                    'Restores {C:blue}Hands{} when entering next phase'
                 }
             },
         },
@@ -142,12 +171,12 @@ return { --remind me to work on this
             ["hsr_stats_page"] = {
                 name = "",
                 text = {
-                    "{C:red}Speed: {}#20#",
+                    "Speed: {C:red}#20#{}",
                     "{C:inactive,s:0.8}(Excess Action Value: #21#){}",
-                    "{C:red}Attack: {}#22#%",
-                    "{C:red}Basic Effect Efficiency: {}#23#%",
-                    "{C:red}#3# Element Multiplier: {}#24#%",
-                    "{C:red}Other Stats: {}",
+                    "Attack: {C:red}#22#%{}",
+                    "Basic Effect Efficiency: {C:red}#23#%{}",
+                    "#3# Element Multiplier: {C:red}#24#%{}",
+                    "Other Stats:",
                     "{C:inactive,s:0.7}#25#{}",
                 }
             },
@@ -167,9 +196,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'..' {s:0.7}Gain{} {C:money,s:0.7}$#31#{} {s:0.7}at end of round{}',
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Gain{} {C:money,s:0.7}$#31#{} {s:0.7}at end of round{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'..' {s:0.7}Gain{} {C:money,s:0.7}$#31#{} {s:0.7}at end of round{}',
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}A trash bag. Maybe a certain lunatic will be{}',
                     '{C:inactive,s:0.6}tremendously buffed when standing next to it.{}',
                 },
@@ -180,21 +209,21 @@ return { --remind me to work on this
                     'If no discards were used this round, gain {C:attention}Soulsteel Sync{}',
                     '{C:inactive}If Joker has{} {C:attention}Soulsteel Sync{}{C:inactive}:{}',
                     '{C:inactive}- [Attack] Played cards with {C:spades}Spade{}{C:inactive} suit give {}{X:chips,C:white}X1.1{}{C:inactive} Chips and {}{C:money}$1{}',
-                    "{C:inactive}- Increases {}{C:attention}Attack{}{C:inactive} by 25%{}",
+                    "{C:inactive}- Increases {}{C:attention}ATK{}{C:inactive} by 25%{}",
                 }
             },
             ["j_hsr_Yanqing2"] = {
                 name = "Yanqing",
                 text = {
                     '{C:inactive,s:0.8}(Eidolon 1){}'..' {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, played cards with Spade suit give {}{C:chips,s:0.7}+20{}{s:0.7} Chips{}',
-                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, increases {}{C:attention,s:0.7}SPD by 20{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, increases {}{C:attention,s:0.7}SPD{}{s:0.7} by 20{}",
                     '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, played cards with Spade suit give {}{C:money,s:0.7}$1{}',
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, increases {}{C:attention,s:0.7}Ice Element Multiplier{}{s:0.7} by 12%{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, {}{X:chips,C:white,s:0.7}X1.5{}{s:0.7} Chips{}',
-                    '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, increases {}{C:attention,s:0.7}Attack{}{s:0.7} by 25%{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}If Joker has {}{C:attention,s:0.7}Soulsteel Sync{}{s:0.7}, increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 25%{}",
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}For some reason, pain and agony can be felt from{}',
                     '{C:inactive,s:0.6}HSR players as he pops out of the train.{}',
                 }
@@ -218,9 +247,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7,C:chips}+10 {}{s:0.7}Chips, {}{s:0.7,C:mult}+10{}{s:0.7} Mult{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Each {}{s:0.7,C:chips}Hand{}{s:0.7} below max hand increases Joker's {}{C:attention,s:0.7}Basic Effect Efficiency{}{s:0.7} by 30% instead,",
                     '{s:0.7}Cap is increased to 300%{}',
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -237,8 +266,8 @@ return { --remind me to work on this
                 text = {
                     '{C:inactive,s:0.8}(Eidolon ?){}'..'{s:0.7} bronya too op, so no eidolon effects :3{}',
                     'Current Eidolon: {C:mult}?{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}The strongest Harmony character in history.{}', 
                     '{C:inactive,s:0.6}...Being power crept by a wannabe priest and a child is insane tho :sob:{}',
                 }
@@ -249,8 +278,8 @@ return { --remind me to work on this
                     "A random card in hand and 4 adjacent cards to it are inflicted",
                     "with {C:attention}Shock{}, or {C:attention}Amplified Shock{} if they",
                     "are already inflicted with it",
-                    '{C:inactive}[Attack]{} Triggers all {}{C:attention}DoT{} effects',
-                    '{C:inactive}Ultimate [#34#/#35# Hands]{} All cards are inflicted with',
+                    '{C:inactive}[Attack]{} Triggers all {}{C:attention}DoT{} effects of cards in hand',
+                    '{C:inactive}Ultimate [#34#/#35# Discarded Cards]{} All cards are inflicted with',
                     '{C:attention}Amplified Shock{}',
                 }
             },
@@ -263,9 +292,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'..' {s:0.7}Unplayed cards in hand inflicted with {}{C:attention,s:0.7}Shock{}{s:0.7} give {}{X:mult,C:white,s:0.7} X#32#{}{s:0.7} Mult{}',
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Unplayed cards in hand inflicted with{}{C:attention,s:0.7} Shock{}{s:0.7} give{}{C:mult,s:0.7} +#33#{}{s:0.7} Mult{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'..' {s:0.7}Kafka becomes {}{C:dark_edition,s:0.7}Negative{}{s:0.7}, increases{}{C:attention,s:0.7} DoT{}{s:0.7} efficiency by 100%{}',
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}A lost architype in HSR, now reborn stronger than ever.{}', 
                     '{C:inactive,s:0.6}A Stellaron Hunter, capable of manipulating individuals to her desires.{}',
                 }
@@ -275,7 +304,7 @@ return { --remind me to work on this
                 text = {
                     'A random card in hand is inflicted with 1 stack of',
                     '{C:attention}Wind Shear 5{} times',
-                    '{C:inactive}[Attack]{} Triggers all {}{C:attention}Wind Shear{} effects',
+                    '{C:inactive}[Attack]{} Triggers all {}{C:attention}Wind Shear{} effects of cards in hand',
                 }
             },
             ["j_hsr_Sampo2"] = {
@@ -287,9 +316,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'..' {s:0.7}If an unplayed card in hand has 5 or more stacks of {}{C:attention,s:0.7}Wind Shear{}{s:0.7}, additionally gives {}{C:chips,s:0.7}+#34#{}{s:0.7} Chips per stack{}',
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Unplayed cards in hand inflicted with{}{C:attention,s:0.7} Wind Shear{}{s:0.7} give{}{C:mult,s:0.7} +#35#{}{s:0.7} Mult per stack{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'..' {s:0.7}Increases {}{C:attention,s:0.7}DoT{}{s:0.7} efficiency by #36#%{}',
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}The jester, the unpredictable.{}', 
                     '{C:inactive,s:0.6}A very much "ordinary" salesman in Belebog.{}',
                 }
@@ -311,9 +340,9 @@ return { --remind me to work on this
                     "{C:inactive,s:0.8}(Eidolon 4){}".." {C:attention,s:0.7}Exposed{}{s:0.7} additionally reduces unplayed cards'{}{C:attention,s:0.7} Ice RES{}{s:0.7} by 12%{}",
                     "{C:inactive,s:0.8}(Eidolon 5){}".." {s:0.7}Increases {}{C:attention,s:0.7}Exposed{}{s:0.7}'s{}{C:attention,s:0.7} DEF Reduction{}{s:0.7} by 10%{}",
                     "{C:inactive,s:0.8}(Eidolon 6){}".." {s:0.7}Increases {}{C:attention,s:0.7}Exposed{}{s:0.7}'s{}{C:attention,s:0.7} DEF Reduction{}{s:0.7} by 5%{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive, s:0.6}Intelligence Officer of the Silvermane Guard.{}', 
                     '{C:inactive, s:0.6}...to say she is strong would be a severe underestimation.{}',
                 }
@@ -334,9 +363,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'..' {s:0.7}Once per round, when current hand reaches 1, immediately give {}{C:chips,s:0.7}+1{}{s:0.7} Hand{}',
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7,C:red}+1{}{s:0.7} Discard{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'..' {s:0.7}Once per round, after triggering {}{C:attention,E:2,s:0.7}Ultimate{}{s:0.7}, {}{s:0.7,C:red}+1{}{s:0.7} Discard{}',
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}A fastidious doctor who always wears a curious smile.{}',
                     '{C:inactive,s:0.6}She is one of the very few doctors whom the Underworld people can turn to.{}',
                 }
@@ -358,9 +387,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'..' {s:0.7,C:attention}Benediction{}{s:0.7} additionally buffs {}{s:0.7,C:attention}Attack{}{s:0.7} by 20%{}',
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7,C:attention}Benediction{}{s:0.7} additionally buffs {}{s:0.7,C:attention}Basic Effect Efficiency{}{s:0.7} by 20%{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'..' {s:0.7}Jokers with {}{s:0.7,C:attention}Benediction{}{s:0.7} give {}{s:0.7,X:mult,C:white}X1.5{}{s:0.7} Mult{}',
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}A silver-tongued Foxian Girl, Head Representative of the Whistling Flames.{}',
                     '{C:inactive,s:0.6}She has such a way with words that often leaves her audience eagerly waiting for more of her tales.{}',
                 }
@@ -378,15 +407,15 @@ return { --remind me to work on this
             ["j_hsr_Asta2"] = {
                 name = "Asta",
                 text = {
-                    '{C:inactive,s:0.8}(Eidolon 1){}'..' {s:0.7}A random card in hand is inflicted with {}{C:attention,s:0.7}Burn 5 {}{s:0.7}times{}',
+                    '{C:inactive,s:0.8}(Eidolon 1){}'..' {s:0.7}A random card in hand is inflicted with {}{C:attention,s:0.7}Burn 5 {}{s:0.7}times. Triggers all {}{C:attention,s:0.7}Burn{}{s:0.7} effects of cards in hand{}',
                     '{C:inactive,s:0.8}(Eidolon 2){}'..' {s:0.7}If {}{C:attention,E:2,s:0.7}Ultimate{}{s:0.7} was triggered this round, {}{s:0.7,C:attention}Astrometry{}{s:0.7} will not be reduced at end of current round{}',
                     '{C:inactive,s:0.8}(Eidolon 3){}'.." {s:0.7}Each stack of {}{C:attention,s:0.7}Astrometry{}{s:0.7} additionally gives {}{C:mult,s:0.7}+5{}{s:0.7} Mult{}",
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}If the number of {}{C:attention,s:0.7}Astrometry{}{s:0.7}'s stack is more than (or equal) 2, increase Cooldown Regeneration by 1{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Reduce the number of Hands necessary to trigger {}{C:attention,E:2,s:0.7}Ultimate{}{s:0.7} by 1{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}If the number of {}{C:attention,s:0.7}Astrometry{}{s:0.7}'s stack is 4, increase {}{c:attention,s:0.7}Attack{}{s:0.7} by 50%{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}A silver-tongued Foxian Girl, Head Representative of the Whistling Flames.{}',
                     '{C:inactive,s:0.6}She has such a way with words that often leaves her audience eagerly waiting for more of her tales.{}',
                 }
@@ -409,9 +438,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}After triggering {}{C:attention,E:2,s:0.7}Ultimate{}{s:0.7}, next turn, {}{s:0.7,C:white,X:mult}X1.5{}{s:0.7} Mult{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}If current hand is below (or equal) 2, increase Cooldown Regeneration by 1{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Ultimate{}{s:0.7} converts 3 cards instead{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -433,9 +462,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}Once per round, if Dan Heng possesses a Buff, increases {}{C:attention,s:0.7}Wind Element Multiplier{}{s:0.7} by 36% for one turn{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Played Cards with {}{s:0.7,C:spades}Spade{}{s:0.7} suit give {}{s:0.7,C:mult}+3{}{s:0.7} Mult{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Increase {}{s:0.7,C:attention}SPD{}{s:0.7} by 25{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -458,9 +487,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}Passive increases {}{C:attention,s:0.7}DMG Taken{}{s:0.7} by 25% instead{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7,C:chips}+200{}{s:0.7} Chips{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Passive selects 4 cards instead. Scaling for {}{C:chips,s:0.7}Chips{}{s:0.7} is doubled{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -482,9 +511,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7,E:2,C:attention}Follow-up Effect{}{s:0.7} only needs 2 different {}{C:attention,s:0.7}Ranks{}{s:0.7} or {}{C:attention,s:0.7}Suits{}{s:0.7} to trigger{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 50%{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7,E:2,C:attention}Follow-up Effect{}{s:0.7} additionally retriggers played cards once{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -508,9 +537,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}Each {}{s:0.7,C:attention}Unique{}{s:0.7} card (up to 3) increases all Jokers' {}{s:0.7,C:attention}ATK{}{s:0.7} by 10% for 2 turns{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7,X:chips,C:white}X2.5{}{s:0.7} Chips{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Once per Ante, if {}{s:0.7,C:blue}Hand{}{s:0.7} reaches 0, restores to Max Hands{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -534,9 +563,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}Each {}{s:0.7,C:mult}100{}{s:0.7} Mult additionally gives {}{s:0.7,X:mult,C:white}X1.1{}{s:0.7} Mult{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7,C:chips}+25{}{s:0.7} Chips{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Passive additionally increases Mult by {}{s:0.7,C:mult}+40.{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -544,8 +573,8 @@ return { --remind me to work on this
             ["j_hsr_Seele1"] = {
                 name = "Seele",
                 text = {
-                    "{C:inactive}[Attack]{} Played cards with {V:1}#31#{} suit give {X:mult,C:white}X1.1{} Mult",
-                    "Retriggers all played cards with {V:1}#31#{} suit",
+                    "{C:inactive}[Attack]{} Played cards with {V:2}#31#{} suit give {X:mult,C:white}X1.1{} Mult",
+                    "Retriggers all played cards with {V:2}#31#{} suit",
                     "{C:inactive}[Attack]{} Played {C:attention}#32#s{} give {X:chips,C:white}X1.1{} Chips",
                     "{C:red,E:2}Suit and Rank reset after a hand is played{}",
                 }
@@ -560,9 +589,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}Speed{}{s:0.7} by 50{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Played cards are inflicted with {}{C:attention,s:0.7}Butterfly Flurry{}",
                     "{C:attention,s:0.7}Butterfly Flurry{}{s:0.7} increases affected cards' {}{C:attention,s:0.7}DMG Taken{}{s:0.7} by 50%{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -589,9 +618,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}When {}{E:2,C:attention,s:0.7}Follow-up Effect{}{s:0.7} is triggered, each {}{C:attention,s:0.7}Hit-per-action{}{s:0.7} increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 2%{}{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 15%{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Cards targeted by {}{E:2,C:attention,s:0.7}Follow-up Effect{}{s:0.7} increase their {}{C:attention,s:0.7}DMG Taken{}{s:0.7} by 12%, stacking up to 3 times{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -615,9 +644,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7} additionally gives {}{s:0.7,C:chips}+10{}{s:0.7} Chips{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 12%{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7} gives {}{s:0.7,C:white,X:chips}X1.5{}{s:0.7} Chips instead when card is {}{C:attention,s:0.7}Glass{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -646,9 +675,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,s:0.7}Cherry on Top!{}{s:0.7} state gives {}{s:0.7,C:white,X:mult}X5{}{s:0.7} Mult instead{}",
                     "{s:0.7}When {}{C:attention,s:0.7}A Scoop of Moon{}{s:0.7} is triggered, if there is a {}{C:attention,s:0.7}Suit{}{s:0.7} with the highest number in hand{}",
                     "{s:0.7}randomizes cards with other {}{C:attention,s:0.7}Suit{}{s:0.7}, else, randomizes all cards{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -656,25 +685,26 @@ return { --remind me to work on this
             ["j_hsr_Sushang1"] = {
                 name = "Sushang",
                 text = {
-                    "When current score first reaches higher (or equal) than 50% of score",
-                    "requirement, triggers {E:2,C:attention}Follow-up Effect{}",
-                    "{C:inactive}[Follow-up Effect, Attack]{} Each unplayed card gives {C:chips}+25{} Chips,",
-                    "and the next cards also give {C:chips}+25{} Chips more if consecutively triggered,",
-                    "if it is a {C:attention}Glass Card{}, additionally gives {X:chips,C:white}X1.2{} Chips",
+                    "{C:inactive}[Attack]{} Played card with {V:2}#31#{} suit gives {C:chips}+#34#{} Chips:",
+                    "- {C:green}#32# in #33#{} to {C:red,E:2}destroy{}, and permenantly increases Chips from",
+                    "{C:attention}Attack{} by {C:chips}+25{}",
+                    "- {C:green}#32# in #35#{} to be inflicted with {C:attention}Bleed{}, and a fixed {C:green}75%{} to trigger {C:attention}Bleed{},",
+                    "repeated up to 5 times",
+                    "{C:inactive}(Suit resets every time this Joker is obtained){}"
                 }
             },
             ["j_hsr_Sushang2"] = {
                 name = "Sushang",
                 text = {
-                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}Chips from {}{E:2,C:attention,s:0.7}Follow-up Effect{}{s:0.7} are increased by 40%{}",
+                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}When {}{C:attention,E:2,s:0.7}Attack{}{s:0.7} breaks a card, increases {}{C:attention,s:0.7}SPD{}{s:0.7} by 25 for 1 turn, up to 4 times{}",
                     '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When {}{E:2,C:attention,s:0.7}Follow-up Effect{}{s:0.7} is triggered, each card in hand increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 4%, up to 40%{}",
                     '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 10%{}',
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7} additionally gives {}{s:0.7,C:chips}+10{}{s:0.7} Chips{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 12%{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7} gives {}{s:0.7,C:white,X:chips}X1.5{}{s:0.7} Chips instead when card is {}{C:attention,s:0.7}Glass{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -697,9 +727,9 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {C:attention,E:2,s:0.7}Ultimate{}{s:0.7} has a fixed 50% to reduce {}{C:attention,s:0.7}DEF{}{s:0.7} by 10%{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 7%{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Attack{}{s:0.7} gives 30% more Mult{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -721,12 +751,12 @@ return { --remind me to work on this
                     '{C:inactive,s:0.8}(Eidolon 1){}'.." {C:attention,E:2,s:0.7}Attack{}{s:0.7} gives 20% more Mult{}",
                     '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}Inflicts an additional stack of {}{C:attention,s:0.7}Burn{}",
                     '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5%{}',
-                    '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}If {C:attention,E:2,S:0.7}Attack{} is triggered, additionally triggers {}{C:attention,s:0.7}Burn{}{s:0.7} on adjacent cards{}",
+                    '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}If {C:attention,E:2,S:0.7}Attack{}{s:0.7} is triggered, additionally triggers {}{C:attention,s:0.7}Burn{}{s:0.7} on adjacent cards{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 7%{}',
                     '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Attack{}{s:0.7} gives 30% more Mult{}",
-                    'Current Eidolon: {C:mult}#1#{}',
-                    'Type: {C:mult}#2#{}',
-                    'Element: {C:mult}#3#{}',
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
                     '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
                     '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
                 }
@@ -736,11 +766,11 @@ return { --remind me to work on this
             c_hsr_starrailspecialpass = {
                 name = "Star Rail Special Pass",
                 text = {
-                    'Roll #1# time(s) with different chances.',
-                    '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker.{}',
-                    '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker.{}',
-                    '{C:inactive,s:0.6}0.3% to get a 5 stars Standard Joker.{}',
-                    '{C:inactive,s:0.6}0.3% to get a 5 stars Special Joker.{}',
+                    'Roll #1# time(s) with different chances',
+                    '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker{}',
+                    '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker{}',
+                    '{C:inactive,s:0.6}0.3% to get a 5 stars Standard Joker{}',
+                    '{C:inactive,s:0.6}0.3% to get a 5 stars Special Joker{}',
                     'Pity: #7#',
                     '#2#',
                     '{C:inactive,s:0.8}Featured 5-Star:{} {C:attention,s:0.8}#3#{}',
@@ -752,10 +782,10 @@ return { --remind me to work on this
             c_hsr_starrailpass = {
                 name = 'Star Rail Pass', 
                 text = { 
-                    'Roll #1# time(s) with different chances.',
-                    '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker.{}',
-                    '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker.{}',
-                    '{C:inactive,s:0.6}0.6% to get a 5 stars Standard Joker.{}',
+                    'Roll #1# time(s) with different chances',
+                    '{C:inactive,s:0.6}94.3% to get a 3 stars Standard Joker{}',
+                    '{C:inactive,s:0.6}5.1% to get a 4 stars Standard Joker{}',
+                    '{C:inactive,s:0.6}0.6% to get a 5 stars Standard Joker{}',
                     'Pity: #2#',
                 }
             },
@@ -782,7 +812,7 @@ return { --remind me to work on this
                 text = {
                     "{C:inactive}Max Stack:{} {C:attention}1{}",
                     "{C:inactive}[-.. --- -]{}",
-                    "{C:inactive}When held in hand, gives {}{C:mult}+20{}{C:inactive} Mult{}",
+                    "{C:inactive}Gives {}{C:mult}+20{}{C:inactive} Mult{}",
                     "{C:inactive}per stack{}",
                 },
             },
@@ -792,7 +822,7 @@ return { --remind me to work on this
                     "{C:inactive}Max Stack:{} {C:attention}1{}",
                     "{C:inactive}This debuff is also seen as {}{C:attention}Shock{}",
                     "{C:inactive}[-.. --- -]{}",
-                    "{C:inactive}When held in hand, gives {}{C:mult}+20{}{C:inactive} Mult,{}",
+                    "{C:inactive}Gives {}{C:mult}+20{}{C:inactive} Mult,{}",
                     "{X:mult,C:white}X1.5{}{C:inactive} Mult per stack{}",
                 },
             },
@@ -801,8 +831,17 @@ return { --remind me to work on this
                 text = {
                     "{C:inactive}Max Stack:{} {C:attention}5{}",
                     "{C:inactive}[-.. --- -]{}",
-                    "{C:inactive}When held in hand, gives {}{C:mult}+5{}{C:inactive} Mult{}",
+                    "{C:inactive}Gives {}{C:mult}+5{}{C:inactive} Mult{}",
                     "{C:inactive}per stack{}",
+                },
+            },
+            hsr_dot_bleed = {
+                name = "Bleed",
+                text = {
+                    "{C:inactive}Max Stack:{} {C:attention}2{}",
+                    "{C:inactive}[-.. --- -]{}",
+                    "{C:inactive}Gives {}{C:mult}50%{}{C:inactive} Mult{}",
+                    "{C:inactive}of card's {C:chips}Chips{}{C:inactive} per stack{}",
                 },
             },
             hsr_dot_wind_shear = {
@@ -810,7 +849,7 @@ return { --remind me to work on this
                 text = {
                     "{C:inactive}Max Stack:{} {C:attention}5{}",
                     "{C:inactive}[-.. --- -]{}",
-                    "{C:inactive}When held in hand, gives {}{C:chips}+20{}{C:inactive} Chips{}",
+                    "{C:inactive}Gives {}{C:chips}+20{}{C:inactive} Chips{}",
                     "{C:inactive}per stack{}",
                 },
             },
@@ -818,9 +857,17 @@ return { --remind me to work on this
     },
     misc={
         dictionary = {
+            hsr_debuffed = "Debuffed!",
+            hsr_destroyed = "Destroyed!",
+            hsr_released = "Released!",
+            hsr_svarog_engage = "Engage.",
+
             k_hsr_3stars = "3-Stars",
             k_hsr_4stars = "4-Stars",
             k_hsr_5stars = "5-Stars",
+
+            hsr_phase_2 = "Phase 2!",
+            hsr_phase_3 = "Phase 3!",
 
             hsr_m7_message = "Glacial Cascade!",
             hsr_danheng_message = "Ethereal Dream!",
@@ -836,6 +883,7 @@ return { --remind me to work on this
             hsr_jingyuan_message = "Lightning Lord!",
             hsr_increase = "Increased!",
             hsr_seele_message = "Resurgence!",
+            hsr_sushang_message = "Sword Stance!",
 
             hsr_banner_name1 = "Butterfly on Swordtip",
             hsr_banner_name2 = "Swirl of Heavenly Spear",
