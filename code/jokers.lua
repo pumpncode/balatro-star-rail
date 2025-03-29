@@ -950,7 +950,7 @@ function buffJoker(card, other_joker, buff) --Grant Jokers buffs.
       trigger = 'before',
       delay = 0.0,
       func = function()
-         card:juice_up()
+         if card then card:juice_up() end
          other_joker:juice_up()
 
          return true
@@ -1676,13 +1676,6 @@ SMODS.Joker{ --Literal Trash
    calculate = function(self, card, context)
       local extraStuff = card.ability.extra
       local ret = HSRContextHandler(self,card,context)
-
-      if context.ending_shop then
-         for i,_ in pairs(context) do
-            print(i)
-         end
-         print("------------")
-      end
 
       if ret then
          return ret
@@ -3711,7 +3704,6 @@ SMODS.Joker{ --Hook
    end,
 
 }
-
 ---5-Star
 SMODS.Joker{ --Yanqing
    key = 'Yanqing',

@@ -1,7 +1,7 @@
 --Be alerted: This is my FIRST mod. I actually planned this to be more of a practice project, but it seems everyone is now expecting for it to be released so here comes nothing.
 
 BalatroSR = SMODS.current_mod
-SMODS.current_mod.optional_features = { retrigger_joker = true }
+SMODS.current_mod.optional_features = { retrigger_joker = true, cardareas = {deck = true}}
 
 local allFolders = {
     "none", "code"
@@ -518,7 +518,10 @@ local hsrText = { --The core of EVERYTHING.
                 }
             },
             Others = {
-
+                ["cocolia_mark"] = {
+                    permBuff = true,
+                    text = "Marked by Cocolia"
+                },
             },
         },
         config = { --[[All values here are automatically read by HSRJokerMain (check jokers.lua):

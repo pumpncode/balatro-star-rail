@@ -802,3 +802,21 @@ BalatroSR.numUniqueSuits = function(area,base) --Check how many unique suits are
 
     return #registeredSuits
 end
+
+BalatroSR.numUniqueRanks = function(area) --Check how many unique ranks are there in an area.
+    local registeredRanks = {}
+
+    for _,c in ipairs(area) do
+        if c.base and c.base.id then
+            local registered = false
+            for _,rR in pairs(registeredRanks) do
+                if c.base.id == rR then registered = true break end
+            end
+            if not registered then
+                table.insert(registeredRanks,c.base.id)
+            end
+        end
+    end 
+
+    return #registeredRanks
+end

@@ -64,17 +64,75 @@ return { --remind me to work on this
                 name = 'Chill of Bone-Piercing Coagulation',
                 text = {
                     'If scored hand has only:',
-                    '- 1 Suit: {C:attention}rightmost{} card',
-                    'becomes {C:attention}Stone{}',
+                    '- 1 Suit: {C:attention}rightmost{} card becomes {C:attention}Stone{}',
+                    '- 1 Rank: {C:attention}rightmost{} card becomes {C:attention}Foil{}',
+                },
+            },
+            psv_hsr_Cocolia_passive2_1 = {
+                name = 'Bone-Shattering Cold',
+                text = {
+                    '{C:attention}Leftmost{} played card becomes {C:attention}Glass{}',
+                    'Each card in hand has {C:green}50%{} to become {C:attention}Glass{}',
+                    '{C:red}Destroys{} {C:attention}Glass{} cards in hand',
+                },
+            },
+            psv_hsr_Cocolia_passive2_2 = {
+                name = 'Harbinger of Annihilation',
+                text = {
+                    'Caps Score at {C:attention}50%{} of Score Requirement per hand,',
+                    '{C:attention}Marks{} a random Joker',
+                    'After 3 {C:blue}Hands{} are played, {C:red}destroys{} marked Joker,',
+                    '{C:red,E:2}reduces Score by half{}',
+                },
+            },
+            psv_hsr_Cocolia_passive2_3 = {
+                name = 'Heartless Annihilator Call',
+                text = {
+                    'Summons 1 {C:attention}Lances of the Eternal Freeze{}',
+                },
+            },
+            psv_hsr_Cocolia_summon = {
+                name = 'Lances of the Eternal Freeze',
+                text = {
+                    'Destroyed if scored hand has more than 2 base {C:attention}Suits{},',
+                    '{C:attention}Ranks{}',
+                    ' ',
+                    '{X:mult,C:white}X0.5{} Mult',
+                },
+            },
+            psv_hsr_Cocolia_passive3_nuke = {
+                name = '{C:red}Last Choir of Genesis',
+                text = {
+                    '{C:red,E:2}When hand is played, destroys all cards in hand',
+                    '{C:red,E:2}and half of your deck,',
+                    '{C:red,E:2}reduces Score to 0',
+                },
+            },
+            psv_hsr_Cocolia_passive3_1 = {
+                name = "The Creation's Prelude",
+                text = {
+                    'After using 7 {C:blue}Hands{}/{C:red}Discards{},',
+                    'uses {C:red,E:2}Last Choir of Genesis{}',
+                    ' ',
+                    '{X:chips,C:white}X0.3{} Chips',
+                    '{X:mult,C:white}X0.3{} Mult',
                 },
             },
             psv_hsr_Showdown = {
                 name = 'Final Showdown',
                 text = {
-                    "Can't be debuffed",
+                    "{C:red,E:2}Can't be disabled{}",
                     'Boss Blind has {C:attention}3{} Phases',
                     ' ',
                     'Restores {C:blue}Hands{} when entering next phase'
+                }
+            },
+            psv_hsr_wtf = {
+                name = 'Hecatoncheires',
+                text = {
+                    '{C:red}Discards{} are',
+                    'restored when they are used',
+                    '{C:inactive,E:2}Last push - let us {}{C:dark_edition,E:2}Trailblaze!',
                 }
             },
         },
@@ -449,7 +507,7 @@ return { --remind me to work on this
                 name = "Dan Heng",
                 text = {
                     "{C:inactive}[Attack]{} Played cards with {C:spades}Spade{} suit give {C:mult}+5{} Mult",
-                    "Once per round, if hand is lower than 2,",
+                    "Once per round, if {C:blue}Hand{} is lower than 2,",
                     "Played cards with {C:spades}Spade{} suit give {C:chips}+20{} Chips",
                 }
             },
@@ -860,7 +918,10 @@ return { --remind me to work on this
             hsr_debuffed = "Debuffed!",
             hsr_destroyed = "Destroyed!",
             hsr_released = "Released!",
+
             hsr_svarog_engage = "Engage.",
+            hsr_cocolia_summon = "Collapse!",
+            hsr_cocolia_nuke = "Last Choir of Genesis!",
 
             k_hsr_3stars = "3-Stars",
             k_hsr_4stars = "4-Stars",

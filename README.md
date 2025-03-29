@@ -26,6 +26,8 @@ That's right - a newly implemented Gacha system for getting Jokers from this mod
 Requires the latest version of **Steamodded** and **Lovely** to run smoothly.  
 Instructions can be found [here](https://github.com/Steamopollys/Steamodded/wiki/01.-Getting-started).
 
+UPDATED: Now requires blindexpander to load the blinds. [here](https://github.com/Mysthaps/blindexpander!)
+
 # Credits
 ### Individuals
 Thank you:

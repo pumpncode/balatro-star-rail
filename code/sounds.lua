@@ -1,7 +1,6 @@
 SMODS.Sound{
     key = "music_godfather",
     path = "godfather.ogg",
-    pitch = 1,
     select_music_track = function(self)
         if G and G.GAME and G.GAME.blind and G.GAME.blind.name == "bl_hsr_Svarog" then
             return math.huge --id return a gazillion if possible
