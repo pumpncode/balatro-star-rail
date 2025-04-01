@@ -195,7 +195,6 @@ function CardArea:can_highlight(card)
     return self.config.type == 'gacha_shop' or cardarea_can_highlight_ref
 end
 
-
 local cardarea_add_to_highlighted_ref = CardArea.add_to_highlighted
 function CardArea:add_to_highlighted(card, silent)
     if self.config.type == 'gacha_shop' then
@@ -209,7 +208,6 @@ function CardArea:add_to_highlighted(card, silent)
         cardarea_add_to_highlighted_ref(self, card, silent)
     end
 end
-
 
 local cardarea_draw_ref = CardArea.draw
 function CardArea:draw()
@@ -234,7 +232,6 @@ function CardArea:draw()
         end
     end
 end
-
 
 local cardarea_align_cards_ref = CardArea.align_cards
 function CardArea:align_cards()

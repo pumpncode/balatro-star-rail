@@ -10,7 +10,7 @@ local allFolders = {
 local allFiles = {
     --["none"] = {"animatedSprite"},
     ["none"] = {},
-    ["code"] = {"bepis_shenanigans", "sounds", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
+    ["code"] = {"bepis_shenanigans", "worlds", "sounds", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
 } --Same goes with this.
 
 local joker_to_main_mode = 2 
@@ -515,6 +515,36 @@ local hsrText = { --The core of EVERYTHING.
                     duration = 2,
                     speed = 25,
                     text = "Sushang E1"
+                },
+                ["sushang_e2"] = {
+                    duration = 1,
+                    atkMulti = 1.2,
+                },
+                ["sushang_e3"] = {
+                    remain_end_of_round = true,
+                    permBuff = true,
+                    atkMulti = 1.05,
+                },
+                ["sushang_e4"] = {
+                    remain_end_of_round = true,
+                    permBuff = true,
+                    atkMulti = 1.4,
+                },
+                ["sushang_e5"] = {
+                    remain_end_of_round = true,
+                    permBuff = true,
+                    atkMulti = 1.07,
+                },
+                ["sushang_e6"] = {
+                    remain_end_of_round = true,
+                    permBuff = true,
+                    speed = 10,
+                },
+            },
+            Gepard = {
+                ["gepard_e2"] = {
+                    duration = 2,
+                    bee = 1.2
                 }
             },
             Others = {
@@ -716,6 +746,9 @@ local hsrText = { --The core of EVERYTHING.
             Gepard = {
                 type = "Preservation",
                 element = "Ice",
+                xChip = 1,
+                hand = 2,
+                e4hand = 2,
             },
         }
     },
@@ -759,6 +792,38 @@ local absoluteNecessary = { --Every HSR Joker should have this. Now, I know I CO
     otherStats = "None", --Visualizing other unmentioned Stats.
     --Other unmentioned vars.
 } 
+
+--Adding custom localization colors, wee
+G.C.hsr_colors = {
+    hsr_wind = darken(HEX("41fa85"),0.2),
+    hsr_physical = HEX("9c9c9c"),
+    hsr_lightning = HEX("c157ff"),
+    hsr_ice = HEX("47b0ed"),
+    hsr_imaginary = HEX("cfbc11"),
+    hsr_quantum = HEX("6b40e3"),
+    hsr_fire = HEX("e02f1b"),
+}
+
+--[[SMODS.Gradient({ keeping blud hostage until i need to add gradients :3
+    key = "PENDULUM_NORMAL",
+    colours = { G.C.JOY.SPELL, G.C.JOY.NORMAL },
+    cycle = 7.5,
+})]]
+
+local loc_colour_ref = loc_colour
+function loc_colour(_c, _default)
+    if not G.ARGS.LOC_COLOURS then
+        loc_colour_ref()
+    end
+
+    --[[G.ARGS.LOC_COLOURS.joy_pendulum_normal = G.C.JOY.PENDULUM //blud is not escaping, sorry]]
+
+    for i,v in pairs(G.C.hsr_colors) do
+        G.ARGS.LOC_COLOURS[i] = v
+    end
+
+    return loc_colour_ref(_c, _default)
+end
 
 SMODS.ObjectType {key = 'relics'}
 
@@ -1070,10 +1135,10 @@ BalatroSR.hsr_to_joker = function(j) --Add Joker from Gacha Results to Joker Are
 
             G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.3, blockable = false,
                 func = function()
-                        G.hsr_gacha_results_area:remove_card(card)
-                        card:remove()
-                        card = nil
-                    return true; end})) 
+                    G.hsr_gacha_results_area:remove_card(card)
+                    card:remove()
+                    card = nil
+                return true; end})) 
             return true
         end
     })) 
@@ -1945,17 +2010,15 @@ function G.FUNCS.hsr_select_keybind(e)
 end
 
 BalatroSR.custom_ui = function(modNodes)
-    G.joy_desc_area = CardArea(
+    G.hsr_desc_area = CardArea(
         G.ROOM.T.x + 0.2 * G.ROOM.T.w / 2, G.ROOM.T.h,
         4.25 * G.CARD_W,
         0.95 * G.CARD_H,
         { card_limit = 5, type = 'title', highlight_limit = 0, collection = true }
     )
 
-    G.joy_desc_area.joy_demo_area = true
-
     for i, key in ipairs({"c_hsr_starrailspecialpass","c_hsr_starrailpass"}) do
-        local card = Card(G.joy_desc_area.T.x + G.joy_desc_area.T.w / 2, G.joy_desc_area.T.y,
+        local card = Card(G.hsr_desc_area.T.x + G.hsr_desc_area.T.w / 2, G.hsr_desc_area.T.y,
             G.CARD_W, G.CARD_H, G.P_CARDS.empty,
             G.P_CENTERS[key])
         card.children.back = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS["hsr_Jokers"], { x = 0, y = 0 })
@@ -1964,7 +2027,7 @@ BalatroSR.custom_ui = function(modNodes)
         card.children.back.states.drag = card.states.drag
         card.children.back.states.collide.can = false
         card.children.back:set_role({major = card, role_type = 'Glued', draw_major = card})
-        G.joy_desc_area:emplace(card)
+        G.hsr_desc_area:emplace(card)
  
         G.E_MANAGER:add_event(Event({
             trigger = "after",
@@ -1980,7 +2043,7 @@ BalatroSR.custom_ui = function(modNodes)
         n = G.UIT.R,
         config = { align = "cm", padding = 0.07, no_fill = true },
         nodes = {
-            { n = G.UIT.O, config = { object = G.joy_desc_area } }
+            { n = G.UIT.O, config = { object = G.hsr_desc_area } }
         }
     })
 
@@ -2002,7 +2065,7 @@ BalatroSR.extra_tabs = function()
                         )
 
                         for i, key in ipairs(key) do
-                            local card = Card(G.joy_desc_area.T.x + G.joy_desc_area.T.w / 2, G.joy_desc_area.T.y,
+                            local card = Card(G.hsr_desc_area.T.x + G.hsr_desc_area.T.w / 2, G.hsr_desc_area.T.y,
                                 G.CARD_W, G.CARD_H, G.P_CARDS.empty,
                                 G.P_CENTERS[key])
         
@@ -2051,38 +2114,6 @@ BalatroSR.extra_tabs = function()
             end
         },
     }
-end
-
---Adding custom localization colors, wee
-G.C.hsr_colors = {
-    hsr_wind = darken(HEX("41fa85"),0.2),
-    hsr_physical = HEX("9c9c9c"),
-    hsr_lightning = HEX("c157ff"),
-    hsr_ice = HEX("47b0ed"),
-    hsr_imaginary = HEX("cfbc11"),
-    hsr_quantum = HEX("6b40e3"),
-    hsr_fire = HEX("e02f1b"),
-}
-
---[[SMODS.Gradient({ keeping blud hostage until i need to add gradients :3
-    key = "PENDULUM_NORMAL",
-    colours = { G.C.JOY.SPELL, G.C.JOY.NORMAL },
-    cycle = 7.5,
-})]]
-
-local loc_colour_ref = loc_colour
-function loc_colour(_c, _default)
-    if not G.ARGS.LOC_COLOURS then
-        loc_colour_ref()
-    end
-
-    --[[G.ARGS.LOC_COLOURS.joy_pendulum_normal = G.C.JOY.PENDULUM //blud is not escaping, sorry]]
-
-    for i,v in pairs(G.C.hsr_colors) do
-        G.ARGS.LOC_COLOURS[i] = v
-    end
-
-    return loc_colour_ref(_c, _default)
 end
 
 local keywordTest = {

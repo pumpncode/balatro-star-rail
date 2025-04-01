@@ -1,47 +1,100 @@
 --Welcome to where I store ALL of my (maybe) useful functions!
 --Feel free to grab anything here :3
 
-BalatroSR.enhanceCard = function(_,other_card,enhancement,after,immediate,no_effects,haltunhighlight) --Enhance cards.
-    if not no_effects then
+BalatroSR.enhanceCard = function(_,other_card,enhancement,after,immediate,no_effects,haltunhighlight,effect_type) --Enhance cards.
+    if not effect_type or effect_type == 1 then
         for _,othercard in ipairs(other_card) do
-           G.E_MANAGER:add_event(Event({
-              trigger = (after and 'after') or (immediate and "immediate") or 'before',
-              delay = 0.2,
-              func = function()
-                 othercard:flip()
-                 othercard:juice_up()
-                 if not haltunhighlight then
-                    G.hand:add_to_highlighted(othercard)
-                 end
-                 return true
-               end
-           }))
+            if othercard.config.center.key ~= enhancement then
+                if not no_effects then
+                    G.E_MANAGER:add_event(Event({
+                        trigger = (after and 'after') or (immediate and "immediate") or 'before',
+                        delay = 0.2,
+                        func = function()
+                           othercard:flip()
+                           othercard:juice_up()
+                           if not haltunhighlight then
+                              G.hand:add_to_highlighted(othercard)
+                           end
+                           return true
+                         end
+                     }))
+                end
+            end
+        end
+    
+        for _,othercard in ipairs(other_card) do
+            if othercard.config.center.key ~= enhancement then
+                local e = enhancement
+                if type(enhancement) == "table" then
+                    e = pseudorandom_element(enhancement, pseudoseed("hsr_enhancecard_function"))
+                end
+                othercard:set_ability(G.P_CENTERS[e],nil,true)
+                othercard.ability.hsr_enhancecard_function = true
+            end
+        end
+    
+        if not no_effects then
+            for _,othercard in ipairs(other_card) do
+                if othercard.ability.hsr_enhancecard_function then
+                    othercard.ability.hsr_enhancecard_function = nil
+                    G.E_MANAGER:add_event(Event({
+                        trigger = (after and 'after') or (immediate and "immediate") or 'before',
+                        delay = 0.2,
+                        func = function()
+                            othercard:flip()
+                            if not haltunhighlight then
+                                G.hand:remove_from_highlighted(othercard)
+                            end
+                            return true
+                        end
+                     }))
+                end
+            end
+        end     
+    elseif effect_type == 2 then
+        for _,othercard in ipairs(other_card) do
+            if othercard.config.center.key ~= enhancement then
+                if not no_effects then
+                    G.E_MANAGER:add_event(Event({
+                        trigger = (after and 'after') or (immediate and "immediate") or 'before',
+                        delay = 0.2,
+                        func = function()
+                           othercard:flip()
+                           othercard:juice_up()
+                           if not haltunhighlight then
+                              G.hand:add_to_highlighted(othercard)
+                           end
+                           return true
+                         end
+                     }))
+                end
+
+                local e = enhancement
+                if type(enhancement) == "table" then
+                    e = pseudorandom_element(enhancement, pseudoseed("hsr_enhancecard_function"))
+                end
+                othercard:set_ability(G.P_CENTERS[e],nil,true)
+                othercard.ability.hsr_enhancecard_function = true
+
+                if not no_effects then
+                    if othercard.ability.hsr_enhancecard_function then
+                        othercard.ability.hsr_enhancecard_function = nil
+                        G.E_MANAGER:add_event(Event({
+                            trigger = (after and 'after') or (immediate and "immediate") or 'before',
+                            delay = 0.2,
+                            func = function()
+                                othercard:flip()
+                                if not haltunhighlight then
+                                    G.hand:remove_from_highlighted(othercard)
+                                end
+                                return true
+                            end
+                         }))
+                    end
+                end
+            end
         end
     end
-
-    for _,othercard in ipairs(other_card) do
-        local e = enhancement
-        if type(enhancement) == "table" then
-           e = pseudorandom_element(enhancement)
-        end
-        othercard:set_ability(G.P_CENTERS[e],nil,true)
-    end
-
-    if not no_effects then
-        for _,othercard in ipairs(other_card) do
-           G.E_MANAGER:add_event(Event({
-              trigger = (after and 'after') or (immediate and "immediate") or 'before',
-              delay = 0.2,
-              func = function()
-                 othercard:flip()
-                 if not haltunhighlight then
-                    G.hand:remove_from_highlighted(othercard)
-                 end
-                 return true
-               end
-           }))
-        end
-    end    
 end
  
 BalatroSR.unenhanceCard = function(card,other_card,after,immediate,no_effects,haltunhighlight) --Unenhance cards.
@@ -150,7 +203,7 @@ BalatroSR.selectRandomCards = function(b,c) --In its name.
     local ret = {}
  
     for i = min,max do
-       ret[#ret+1] = pseudorandom_element(area)
+       ret[#ret+1] = pseudorandom_element(area, pseudoseed("hsr_selectrandomcards_function"))
        for index,v in ipairs(area) do
           if v == ret[#ret] then
              area[index] = nil
@@ -819,4 +872,48 @@ BalatroSR.numUniqueRanks = function(area) --Check how many unique ranks are ther
     end 
 
     return #registeredRanks
+end
+
+BalatroSR.set_rank = function(card,new_rank) --Adapted from Tecci's function. Changes the rank of a playing card.
+    local suit_prefix = string.sub(card.base.suit, 1, 1)..'_'
+    local rank_suffix = new_rank
+
+    if rank_suffix == 10 then rank_suffix = 'T'
+    elseif rank_suffix == 11 then rank_suffix = 'J'
+    elseif rank_suffix == 12 then rank_suffix = 'Q'
+    elseif rank_suffix == 13 then rank_suffix = 'K'
+    elseif rank_suffix == 14 then rank_suffix = 'A'
+    end
+
+    card:set_base(G.P_CARDS[suit_prefix..rank_suffix])
+end
+
+BalatroSR.increase_rank = function(card,rank_increase,disable_loop_back) --Increases the rank of a playing card. Loops back if it overincreases as a failsafe, if disable_loop_back is not specified.
+    local new_rank = card.base.id + rank_increase
+    if not disable_loop_back then
+        if new_rank > 14 then
+            repeat
+                new_rank = new_rank - 13 --You want the rank to be at 2, not 1.
+            until new_rank <= 14
+        end
+    else
+        if new_rank > 14 then new_rank = 14 end
+    end
+
+    BalatroSR.set_rank(card,new_rank)
+end
+
+BalatroSR.decrease_rank = function(card,rank_increase,disable_loop_back) --Decreases the rank of a playing card. Loops back if it overincreases as a failsafe, if disable_loop_back is not specified.
+    local new_rank = card.base.id - rank_increase
+    if not disable_loop_back then
+        if new_rank < 2 then
+            repeat
+                new_rank = new_rank + 13 --You want the rank to be at 2, not 1.
+            until new_rank >= 2
+        end
+    else
+        if new_rank < 2 then new_rank = 2 end
+    end
+
+    BalatroSR.set_rank(card,new_rank)
 end

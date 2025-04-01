@@ -103,9 +103,10 @@ return { --remind me to work on this
             psv_hsr_Cocolia_passive3_nuke = {
                 name = '{C:red}Last Choir of Genesis',
                 text = {
-                    '{C:red,E:2}When hand is played, destroys all cards in hand',
+                    '{C:red,E:2}Destroys all cards in hand',
                     '{C:red,E:2}and half of your deck,',
-                    '{C:red,E:2}reduces Score to 0',
+                    '{C:red,E:2}reduces Score to 0 if next hand',
+                    '{C:red,E:2}does not beat the Blind',
                 },
             },
             psv_hsr_Cocolia_passive3_1 = {
@@ -117,6 +118,22 @@ return { --remind me to work on this
                     '{X:chips,C:white}X0.3{} Chips',
                     '{X:mult,C:white}X0.3{} Mult',
                 },
+            },
+            --Frostspawn
+            psv_hsr_Frostspawn_ER = {
+                name = 'Elemental Resistance',
+                text = {
+                   '[{C:red}-20%{}] {C:hsr_imaginary}Imaginary{}, {C:hsr_quantum}Quantum{}, {C:physical}Physical{}, {C:hsr_lightning}Lightning{}',
+                   '[{C:red}-40%{}] {C:hsr_ice}Ice{}',
+                }
+            },
+            --Flamespawn
+            psv_hsr_Flamespawn_ER = {
+                name = 'Elemental Resistance',
+                text = {
+                   '[{C:red}-20%{}] {C:hsr_lightning}Lightning{}, {C:hsr_wind}Wind{}, {C:hsr_quantum}Quantum{}, {C:hsr_imaginary}Imaginary{}',
+                   '[{C:red}-40%{}] {C:hsr_fire}Fire{}',
+                }
             },
             psv_hsr_Showdown = {
                 name = 'Final Showdown',
@@ -755,11 +772,39 @@ return { --remind me to work on this
                 name = "Sushang",
                 text = {
                     '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}When {}{C:attention,E:2,s:0.7}Attack{}{s:0.7} breaks a card, increases {}{C:attention,s:0.7}SPD{}{s:0.7} by 25 for 1 turn, up to 4 times{}",
-                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When {}{E:2,C:attention,s:0.7}Follow-up Effect{}{s:0.7} is triggered, each card in hand increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 4%, up to 40%{}",
-                    '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 10%{}',
-                    '{C:inactive,s:0.8}(Eidolon 4){}'.." {C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7} additionally gives {}{s:0.7,C:chips}+10{}{s:0.7} Chips{}",
-                    '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 12%{}',
-                    '{C:inactive,s:0.8}(Eidolon 6){}'.." {C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7} gives {}{s:0.7,C:white,X:chips}X1.5{}{s:0.7} Chips instead when card is {}{C:attention,s:0.7}Glass{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When {}{C:attention,E:2,s:0.7}Attack{}{s:0.7} triggers {C:attention,s:0.7}Bleed{}{C:inactive,s:0.7}, increases {C:attention,s:0.7}ATK{}{s:0.7} by 20% for 1 turn{}",
+                    '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5%{}',
+                    '{C:inactive,s:0.8}(Eidolon 4){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 40%{}',
+                    '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 7%{}',
+                    '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Increases {}{C:attention,s:0.7}SPD{}{s:0.7} by 10{}",
+                    'Current Eidolon: {C:red}#1#{}',
+                    'Type: {C:red}#2#{}',
+                    'Element: {V:1}#3#{}',
+                    '{C:inactive,s:0.6}Head of the security department around Herta Space Station{}', 
+                    '{C:inactive,s:0.6}who can also manage your finances quite well.{}',
+                }
+            },
+            ["j_hsr_Gepard1"] = {
+                name = "Gepard",
+                text = {
+                    "{C:blue}+2{} Hands",
+                    "{X:chips,C:white}X#31#{} Chips",
+                    "{C:inactive}(Increases by {}{X:chips,C:white}X0.2{}{C:inactive} per Stone Card in deck){}",
+                    "When hand is played, if {C:attention}leftmost{} card in hand is",
+                    "{C:attention}Stone{}, increases its Chips by {C:chips}+50{}. Else,",
+                    "converts it to {C:attention}Stone{}",
+                }
+            },
+            ["j_hsr_Gepard2"] = {
+                name = "Gepard",
+                text = {
+                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}If card is {}{C:attention,s:0.7}Stone{}{s:0.7}, additionally increases its Chips by {}{C:chips,s:0.7}+25{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When Joker turns card into {}{C:attention,s:0.7}Stone{}{s:0.7}, {}{C:attention,s:0.7}Basic Effect Efficiency{}{s:0.7} increases by 20% for 1 turn{}",
+                    '{C:inactive,s:0.8}(Eidolon 3){}'..' {C:attention,s:0.7}Stone{}{s:0.7} cards when scored give {}{s:0.7,C:mult}+20{}{s:0.7} Mult{}',
+                    '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}+2 {}{C:blue,s:0.7}Hand{}",
+                    '{C:inactive,s:0.8}(Eidolon 5){}'..' {C:attention,s:0.7}Stone{}{s:0.7} cards when scored give {}{s:0.7,C:money}$1{}',
+                    '{C:inactive,s:0.8}(Eidolon 6){}'.." {s:0.7}Once per round, when {}{C:blue,s:0.7}Hand{}{s:0.7} reaches 0, increases {}{C:blue,s:0.7}Hand{}{s:0.7} by +4{}",
+                    "{s:0.7}If card is {}{C:attention,s:0.7}Stone{}{s:0.7}, additionally increases its Chips by {}{C:chips,s:0.7}+75{}",
                     'Current Eidolon: {C:red}#1#{}',
                     'Type: {C:red}#2#{}',
                     'Element: {V:1}#3#{}',
@@ -915,9 +960,15 @@ return { --remind me to work on this
     },
     misc={
         dictionary = {
+            hsr_world_Belobog = "The Freezing Preservation of Humanity",
+            hsr_world_Xianzhou = "The Cursed Abundance of Immortality",
+
             hsr_debuffed = "Debuffed!",
             hsr_destroyed = "Destroyed!",
             hsr_released = "Released!",
+            hsr_retriggered = "Retriggered!",
+            hsr_upgraded = "Upgraded!",
+            hsr_reinforced = "Reinforced!",
 
             hsr_svarog_engage = "Engage.",
             hsr_cocolia_summon = "Collapse!",
@@ -945,6 +996,7 @@ return { --remind me to work on this
             hsr_increase = "Increased!",
             hsr_seele_message = "Resurgence!",
             hsr_sushang_message = "Sword Stance!",
+            hsr_bronya_message = "Onward!",
 
             hsr_banner_name1 = "Butterfly on Swordtip",
             hsr_banner_name2 = "Swirl of Heavenly Spear",
@@ -961,6 +1013,8 @@ return { --remind me to work on this
             hsr_current_keybind = "Current Keybind",
             hsr_gacha_show = "Gacha Results",
             hsr_gacha_shop = "Ticket Shop",
+            hsr_boss_switch1 = "SWITCH",
+            hsr_boss_switch2 = "BOSS",
             hsr_buy = "ROLL",
             hsr_relic_pack = "Relics Pack",
         },

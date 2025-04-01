@@ -9,24 +9,25 @@ SMODS.current_mod.passive_ui_size = function()
 end
 
 SMODS.Blind{ --Test Blind
-    key = 'Test',
-    loc_txt = {
-       name = 'YOU ARE FUCKEDDDDDD',
-       text = {
-          'All Jokers are debuffed'
-       }
-    },
-    dollars = 5,
-    mult = 0.1,
-    boss_colour = HEX('C8831B'),
-    boss = {min = 10, max = 10, showdown = true},
-    in_pool = function(self)
-      return false
-    end,
- 
-    recalc_debuff = function(self,card,from_blind)
-       if card.ability.set == 'Joker' then return true end
-    end
+   key = 'Test',
+   loc_txt = {
+      name = 'YOU ARE FUCKEDDDDDD',
+      text = {
+         'All Jokers are debuffed'
+      }
+   },
+   config = {extra = {hsr_blindType = "Small"}},
+   dollars = 5,
+   mult = 0.1,
+   boss_colour = HEX('C8831B'),
+   boss = {min = 5, max = 5},
+   in_pool = function(self)
+     return false
+   end,
+   
+   recalc_debuff = function(self,card,from_blind)
+     if card.ability.set == 'Joker' then return true end
+   end,
 }
 
 local hookTo = ease_background_colour_blind
@@ -190,7 +191,141 @@ function hsr_display_cutscene(pos, c_type, delay_pause) --Copied from LCorp's di
    return true end }))
 end
 
-SMODS.Blind{
+--Small Blinds
+SMODS.Blind{ --Frostspawn
+   key = 'Frostspawn',
+   loc_txt = {
+      name = 'Frostspawn',
+      text = {
+         'Playing a hand turns',
+         'rightmost card in',
+         'hand to Stone',
+      }
+   },
+   dollars = 5,
+   mult = 1.2,
+   boss_colour = G.C.hsr_colors.hsr_ice,
+   boss = {min = 1, max = 1},
+   passives = {
+      "psv_hsr_Frostspawn_ER",
+   },
+   config = {extra = {hsr_blindType = "Small"}},
+   resistances1 = {"Imaginary", "Quantum", "Physical", "Lightning"},
+   resistances2 = {"Ice"},
+   --weaknesses = {"Fire","Lightning","Wind"},
+
+   in_pool = function(self)
+      return false
+   end,
+
+   defeat = function(self)
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.6
+      end
+   end,
+
+   set_blind = function(self)
+      --Elemental Resistance stuff
+      G.GAME["hsr_frostspawn_blind"] = {}
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.6
+      end
+   end,
+
+   calculate = function(self,card,context)
+      if context.before then
+         if G.hand.cards[#G.hand.cards] then
+            BalatroSR.enhanceCard(_,{G.hand.cards[#G.hand.cards]},"m_stone")
+         end
+      end
+   end
+}
+
+SMODS.Blind{ --Flamespawn
+   key = 'Flamespawn',
+   loc_txt = {
+      name = 'Flamespawn',
+      text = {
+         'Playing a hand destroys',
+         'rightmost and leftmost',
+         'card in hand',
+      }
+   },
+   dollars = 5,
+   mult = 1.2,
+   boss_colour = G.C.hsr_colors.hsr_fire,
+   boss = {min = 1, max = 1},
+   passives = {
+      "psv_hsr_Frostspawn_ER",
+   },
+   config = {extra = {hsr_blindType = "Small"}},
+   resistances1 = {"Wind", "Quantum", "Imaginary", "Lightning"},
+   resistances2 = {"Fire"},
+   --weaknesses = {"Fire","Lightning","Wind"},
+
+   in_pool = function(self)
+      return false
+   end,
+
+   defeat = function(self)
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.6
+      end
+   end,
+
+   set_blind = function(self)
+      --Elemental Resistance stuff
+      G.GAME["hsr_flamespawn_blind"] = {}
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.6
+      end
+   end,
+
+   calculate = function(self,card,context)
+      if context.destroy_card and ((context.destroy_card == (G.hand.cards[#G.hand.cards] or {})) or (context.destroy_card == (G.hand.cards[1] or {}))) then
+         return{
+            remove = true,
+         }
+      end
+   end
+}
+--Big Blinds
+
+--Boss Blinds
+
+SMODS.Blind{ --Svarog
    key = 'Svarog',
    loc_txt = {
       name = 'Svarog',
@@ -210,6 +345,10 @@ SMODS.Blind{
    phases = 3,
    resistances = {"Physical","Ice","Quantum","Imaginary"},
    --weaknesses = {"Fire","Lightning","Wind"},
+
+   in_pool = function(self)
+      return false
+   end,
 
    set_blind = function(self)
       --Elemental Resistance stuff
@@ -477,7 +616,7 @@ SMODS.Blind{
    end,
 }
 
-SMODS.Blind{
+SMODS.Blind{ --Cocolia
    key = 'Cocolia',
    loc_txt = {
       name = 'Cocolia',
@@ -491,6 +630,9 @@ SMODS.Blind{
    boss_colour = HEX('91ccff'),
    boss = {min = 8, max = 8, showdown = true},
    config = {extra = {}},
+   in_pool = function(self)
+      return false
+   end,
    passives = {
       "psv_hsr_Cocolia_ER",
       "psv_hsr_Showdown",
@@ -729,7 +871,6 @@ SMODS.Blind{
          if context.before then
             if G.GAME["hsr_cocolia_blind"].hsr_cocolia_markedJoker then
                G.GAME["hsr_cocolia_blind"].hsr_cocolia_countdown = (G.GAME["hsr_cocolia_blind"].hsr_cocolia_countdown or 0) + 1
-               print(G.GAME["hsr_cocolia_blind"].hsr_cocolia_countdown)
                if G.GAME["hsr_cocolia_blind"].hsr_cocolia_countdown >= 3 then
                   G.GAME["hsr_cocolia_blind"].hsr_cocolia_countdown = 0
                   G.GAME["hsr_cocolia_blind"].hsr_cocolia_markedJoker = false
@@ -872,14 +1013,28 @@ SMODS.Blind{
                   pool[#pool+1] = pseudorandom_element(toGrab,pseudoseed("hsr_cocolia_nuke_choose"))
                until #pool >= half
 
-               print(#pool)
-
                for _,v in ipairs(pool) do
-                  v.ability.hsr_Cocolia_marked = true
+                  local cardToBeDestroyed = v
+                  G.E_MANAGER:add_event(Event({
+                     trigger = "before",
+                     delay = 0.1,
+                     func = function()
+                        cardToBeDestroyed:start_dissolve()
+                        return true
+                     end
+                  }))
                end
 
                for _,v in ipairs(G.hand.cards) do
-                  v.ability.hsr_Cocolia_marked = true
+                  local cardToBeDestroyed = v
+                  G.E_MANAGER:add_event(Event({
+                     trigger = "before",
+                     delay = 0.1,
+                     func = function()
+                        cardToBeDestroyed:start_dissolve()
+                        return true
+                     end
+                  }))
                end
 
                G.E_MANAGER:add_event(Event({
@@ -934,7 +1089,7 @@ SMODS.Blind{
    end,
 }
 
---[[SMODS.Blind({
+--[[SMODS.Blind({ fwiend's blind
    key = 'better_roller',
    loc_txt = {
        name = 'The Better Roller',
