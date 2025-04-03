@@ -91,7 +91,7 @@ function Game.update(self, dt)
       if not G.hsr_update_lock then G.hsr_cutscene_timer = G.hsr_cutscene_timer + dt end
    end
 
-    -- i hate chicot, same
+    -- i hate chicot 
     if find_passive("psv_hsr_Showdown") then G.GAME.blind.disabled = nil end
     game_updateref(self, dt)
 end

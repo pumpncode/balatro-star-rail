@@ -24,12 +24,28 @@ local hsrText = { --The core of EVERYTHING.
             ["thief"] = "{s:0.7}If wearer originally gives Chips during main scoring, {}{C:mult,s:0.7}+#3#{}{s:0.7} Mult{}",
             ["passerby"] = "{s:0.7}If wearer originally doesn't give Chips or Mult during main scoring, {}{X:chips,C:white,s:0.7}X#2#{s:0.7} Chips{}",
             ["eagle"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Wind Efficiency {}{s:0.7}by #2#%{}",
+            ["hunter"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Ice Efficiency {}{s:0.7}by #2#%{}",
+            ["thunder"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Lightning Efficiency {}{s:0.7}by #3#%{}",
+            ["champion"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Physical Efficiency {}{s:0.7}by #2#%{}",
+            ["firesmith"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Fire Efficiency {}{s:0.7}by #2#%{}",
+            ["genius"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Quantum Efficiency {}{s:0.7}by #3#%{}",
+            ["wastelander"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Imaginary Efficiency {}{s:0.7}by #3#%{}",
+            ["purity"] = "{s:0.7}Increases wearer's {}{C:attention,s:0.7}Basic Effect Efficiency {}{s:0.7}by #2#%{}",
+            ["wuthering"] = "{s:0.7}If wearer's type is {}{C:attention,s:0.7}Preservation{}{s:0.7}, {}{C:chips,s:0.7}+#2#{}{s:0.7} Chips{}",
         },
         ["4pcs"] = {
             ["musketeer"] = "{s:0.7}Increases{}{C:attention,s:0.7} Base Effect Efficiency {}{s:0.7}by #3#%{}",
             ["thief"] = "{s:0.7}If wearer originally gives chips and gives more than (or equal) 200 Chips during main scoring, {}{X:chips,C:white,s:0.7}X#4#{}{s:0.7} Chips{}",
             ["passerby"] = "{s:0.7}If wearer's type is {}{C:attention,s:0.7}Abundance{}{s:0.7}, retrigger themselves{}",
             ["eagle"] = "{s:0.7}If wearer has an {}{C:attention,s:0.7}Ultimate{}{s:0.7}, increases Cooldown Regeneration by #3#{}",
+            ["hunter"] = "{s:0.7}After using {}{E:2,C:attention,s:0.7}Ultimate{}{s:0.7}, increases {}{E:2,C:attention,s:0.7}ATK{}{s:0.7} by #3#% for 1 turn{}",
+            ["thunder"] = "{s:0.7}Upon using {}{E:2,C:attention,s:0.7}Ultimate{}{s:0.7}, permenantly increases {}{E:2,C:attention,s:0.7}ATK{}{s:0.7} by #4#%, up to 100%{}",
+            ["champion"] = "{s:0.7}When hand is played, increases {}{E:2,C:attention,s:0.7}Basic Effect Efficiency{}{s:0.7} by #3#%, up to 25%, until the end of current round{}",
+            ["firesmith"] = "{s:0.7}After using {}{E:2,C:attention,s:0.7}Ultimate{}{s:0.7}, increases {}{C:attention,s:0.7}ATK{}{s:0.7}, {C:attention,s:0.7}Fire Efficiency{}{s:0.7} by 12% for 1 turn{}",
+            ["genius"] = "{s:0.7}Increases {}{C:attention,s:0.7}DEF Pen{}{s:0.7} by #4#%, additionally increases by #4#% if wearer's element is {}{C:hsr_quantum,s:0.7}Quantum{}",
+            ["wastelander"] = "{s:0.7}If one card in hand is debuffed, increases {}{C:attention,s:0.7}Basic Effect Efficiency{}{s:0.7} by 10%. If all cards are debuffed, additionally increases by 10%{}",
+            ["purity"] = "{s:0.7,X:chips,C:white}X#3#{}{s:0.7} Chips{}",
+            ["wuthering"] = "{s:0.7}If wearer's type is {}{C:attention,s:0.7}Preservation{}{s:0.7}, retrigger themselves{}",
         },
         ["config"] = {
             ["musketeer"] = {
@@ -59,7 +75,66 @@ local hsrText = { --The core of EVERYTHING.
                 baseChips = 10,
                 twopcsBonus = 10,
                 fourpcsBonus = 1,
-            }
+            },
+            ["hunter"] = {
+                ["Name"] = "Hunter of Glacial Forest",
+                ["Effect"] = '+2% ATK',
+                baseATK = 2,
+                twopcsBonus = 10,
+                fourpcsBonus = 25,
+            },
+            ["thunder"] = {
+                ["Name"] = "Band of Sizzling Thunder",
+                ["Effect"] = '+1% ATK, +1% Basic Effect Efficiency',
+                baseATK = 1,
+                baseBEE = 1,
+                twopcsBonus = 10,
+                fourpcsBonus = 4,
+            },
+            ["champion"] = {
+                ["Name"] = "Champion of Streetwise Boxing",
+                ["Effect"] = '+2% Basic Effect Efficiency',
+                baseBEE = 2,
+                twopcsBonus = 10,
+                fourpcsBonus = 5,
+            },
+            ["firesmith"] = {
+                ["Name"] = "Firesmith of Lava-Forging",
+                ["Effect"] = '+2% ATK',
+                baseATK = 2,
+                twopcsBonus = 10,
+                fourpcsBonus = 12,
+            },
+            ["genius"] = {
+                ["Name"] = "Genius of Brilliant Stars",
+                ["Effect"] = '+1% ATK, X1.02 Mult',
+                baseATK = 1,
+                baseXMult = 1.02,
+                twopcsBonus = 10,
+                fourpcsBonus = 10,
+            },
+            ["wastelander"] = {
+                ["Name"] = "Wastelander of Banditry Desert",
+                ["Effect"] = '+1% Basic Effect Efficiency, X1.02 Chips',
+                baseBEE = 1,
+                baseXChip = 1.02,
+                twopcsBonus = 10,
+                fourpcsBonus = 10,
+            },
+            ["purity"] = {
+                ["Name"] = "Knight of Purity Palace",
+                ["Effect"] = 'X1.04 Chips',
+                baseXChip = 1.04,
+                twopcsBonus = 15,
+                fourpcsBonus = 1.5,
+            },
+            ["wuthering"] = {
+                ["Name"] = "Guard of Wuthering Snow",
+                ["Effect"] = 'X1.04 Mult',
+                baseXMult = 1.04,
+                twopcsBonus = 200,
+                fourpcsBonus = 10,
+            },
         },
     },
     CardStats = {
@@ -88,6 +163,7 @@ local hsrText = { --The core of EVERYTHING.
             "bee", --Basic Effect Efficiency.
             "atkMulti",
             "elementMulti",
+            "def_pen"
         },
         CharacterDebuffs = { --[[All values here are automatically read by inflict_debuff (check jokers.lua):
         - max_stack: Stackable debuff. If not declared, it will be seen as a boolean debuff. (aka set to true when inflicted.)
@@ -234,6 +310,7 @@ local hsrText = { --The core of EVERYTHING.
         - bee: Increase Joker's stat by that amount.
         - atkMulti: Increase Joker's stat by that amount.
         - elementMulti: Increase Joker's stat by that amount.
+        - def_pen: Increase Joker's stat by that amount.
         - speed: Increase Joker's stat by that amount.
         - text: Add text to Jokers if this is declared.
         - cooldownRegenBonus: :3 (Due to how priorities work, if you want this to work, you will have to increase duration by 1 more than it should be. For example, if you want it to last for 1 turn then put the duration to 2.)
@@ -552,6 +629,46 @@ local hsrText = { --The core of EVERYTHING.
                     permBuff = true,
                     text = "Marked by Cocolia"
                 },
+                ["hunter_pcs4"] = {
+                    duration = 1,
+                    atkMulti = 1.25,
+                },
+                ["firesmith_pcs4_1"] = {
+                    duration = 1,
+                    atkMulti = 1.12,
+                },
+                ["firesmith_pcs4_2"] = {
+                    duration = 1,
+                    elementMulti = 1.12,
+                },
+                ["thunder_pcs4"] = {
+                    permBuff = true,
+                    remain_end_of_round = true,
+                    max_stack = 25,
+                    atkMulti = 1.04,
+                    text = "B.O.S.Thunder(4 pcs)"
+                },
+                ["champion_pcs4"] = {
+                    permBuff = true,
+                    max_stack = 5,
+                    bee = 1.05,
+                    text = "C.O.S.Boxing(4 pcs)"
+                },
+                ["wastelander_pcs4_1"] = {
+                    duration = 1,
+                    max_stack = 1,
+                    bee = 1.1,
+                },
+                ["wastelander_pcs4_2"] = {
+                    duration = 1,
+                    max_stack = 1,
+                    bee = 1.2,
+                },
+                ["why."] = {
+                    permBuff = true,
+                    atkMulti = -9999999999999999999999999,
+                    text = "You are genuinely fucked."
+                },
             },
         },
         config = { --[[All values here are automatically read by HSRJokerMain (check jokers.lua):
@@ -851,7 +968,7 @@ local CharList = { --All characters available from Gacha.
         "Trash"
     },
     [4] = {
-        "Arlan", "Pela", "Sampo", "Tingyun", "Asta", "Natasha", "Qingque", "DanHeng", "M7", "Hook"
+        "Arlan", "Pela", "Sampo", "Tingyun", "Asta", "Natasha", "Qingque", "DanHeng", "M7", "Hook", "Sushang", "Herta", "Serval"
     },
     [5] = {
         ["Limited"] = {
@@ -862,7 +979,9 @@ local CharList = { --All characters available from Gacha.
             "Bronya",
             "Welt",
             "Himeko",
-            "Bailu"
+            "Bailu",
+            "Gepard",
+            "Clara",
         }
     },
 }
@@ -875,7 +994,7 @@ local BannerList = { --All banners.
     [2] = {
         Name = "hsr_banner_name2",
         FiveStars = "JingYuan",
-        FourStars = {"Tingyun", "Qingque", "M7"}
+        FourStars = {"Tingyun", "Qingque", "Sushang"}
     },
     [3] = {
         Name = "hsr_banner_name3",
@@ -1184,12 +1303,20 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
     local bee = 1
     local atkMulti = 1
     local elementMulti = 1
+    local def_pen = 1
  
     local alike = {
        musketeer = 0,
        thief = 0,
        passerby = 0,
        eagle = 0,
+       hunter = 0,
+       thunder = 0,
+       champion = 0,
+       firesmith = 0,
+       genius = 0,
+       purity = 0,
+       wuthering = 0,
     } --...remind me to add ALL relic keys here.
  
     local specificConditions = {
@@ -1265,14 +1392,31 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
     end
  
     function setBonus(setName)
-       local set = RelicSetEffects["config"][setName]
-       if setName == "musketeer" or (setName == "thief" and not checkIfOriginallyGive("chip")) then
-          extraMult = extraMult + set["baseMult"]
-       elseif setName == "eagle" or setName == "passerby" then
-          extraChips = extraChips + set["baseChips"]
-       elseif setName == "thief" and checkIfOriginallyGive("chip") then
-          extraChips = extraChips + set["baseChips"]
-       end
+        local set = RelicSetEffects["config"][setName]
+        if setName == "musketeer" or (setName == "thief" and not checkIfOriginallyGive("chip")) then
+            extraMult = extraMult + set["baseMult"]
+        elseif setName == "eagle" or setName == "passerby" then
+            extraChips = extraChips + set["baseChips"]
+        elseif setName == "thief" and checkIfOriginallyGive("chip") then
+            extraChips = extraChips + set["baseChips"]
+        elseif setName == "hunter" or setName == "firesmith" then
+            atkMulti = atkMulti + BalatroSR.convertFromPercentage(set["baseATK"])
+        elseif setName == "thunder" then
+            atkMulti = atkMulti + BalatroSR.convertFromPercentage(set["baseATK"])
+            bee = bee + BalatroSR.convertFromPercentage(set["baseBEE"])
+        elseif setName == "champion" then
+            bee = bee + BalatroSR.convertFromPercentage(set["baseBEE"])
+        elseif setName == "genius" then
+            extraxMult = extraxMult + (set["baseXMult"] - 1)
+            atkMulti = atkMulti + BalatroSR.convertFromPercentage(set["baseATK"])
+        elseif setName == "wastelander" then
+            extraxChip = extraxChip + (set["baseXChip"] - 1)
+            bee = bee + BalatroSR.convertFromPercentage(set["baseBEE"])  
+        elseif setName == "purity" then
+            extraxChip = extraXChip + (set["baseXChip"] - 1)
+        elseif setName == "wuthering" then
+            extraxMult = extraxMult + (set["baseXMult"] - 1)
+        end
  
        alike[setName] = alike[setName] + 1
     end
@@ -1293,27 +1437,69 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
           if v >= 4 then
              bee = bee + BalatroSR.convertFromPercentage(set["fourpcsBonus"])
           end
-       elseif i == "thief" then
-          if v >= 2 and checkIfOriginallyGive("chip") then
-             extraMult = extraMult + RelicSetEffects["config"]["thief"]["twopcsBonus"]
-          end
-          if v >= 4 and checkIfOriginallyGive("chip") and extraChips and extraChips >= 200 then
-             extraxChip = extraxChip + (RelicSetEffects["config"]["thief"]["fourpcsBonus"] - 1)
-          end
-       elseif i == "passerby" then
-          if v >= 2 and (not checkIfOriginallyGive("chip")) and (not checkIfOriginallyGive("mult")) then
-             extraxChip = extraxChip + (RelicSetEffects["config"]["passerby"]["twopcsBonus"] - 1)
-          end
-          if v >= 4 then
-             if card.ability.extra.type == "Abundance" then
-                --Remind me to make it so that it retriggers Abundance cards.
-             end
-          end
-       elseif i == "eagle" then
-          if v >= 2 and element == "Wind" then
-             elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
-          end
-       end
+        elseif i == "thief" then
+            if v >= 2 and checkIfOriginallyGive("chip") then
+                extraMult = extraMult + RelicSetEffects["config"]["thief"]["twopcsBonus"]
+            end
+            if v >= 4 and checkIfOriginallyGive("chip") and extraChips and extraChips >= 200 then
+               extraxChip = extraxChip + (RelicSetEffects["config"]["thief"]["fourpcsBonus"] - 1)
+            end
+        elseif i == "passerby" then
+            if v >= 2 and (not checkIfOriginallyGive("chip")) and (not checkIfOriginallyGive("mult")) then
+               extraxChip = extraxChip + (RelicSetEffects["config"]["passerby"]["twopcsBonus"] - 1)
+            end
+            if v >= 4 then
+               if card.ability.extra.type == "Abundance" then
+                  --Remind me to make it so that it retriggers Abundance cards. (i dont even think this is necessary now)
+               end
+            end
+        elseif i == "eagle" then
+            if v >= 2 and element == "Wind" then
+               elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+        elseif i == "hunter" then
+            if v >= 2 and element == "Ice" then
+                elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+        elseif i == "thunder" then
+            if v >= 2 and element == "Lightning" then
+                elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+        elseif i == "champion" then
+            if v >= 2 and element == "Physical" then
+                elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+        elseif i == "firesmith" then
+            if v >= 2 and element == "Fire" then
+                elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+        elseif i == "genius" then
+            if v >= 2 and element == "Quantum" then
+                elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+            if v >= 4 then
+                if element == "Quantum" then
+                    def_pen = def_pen + 0.2
+                else
+                    def_pen = def_pen + 0.1
+                end
+            end
+        elseif i == "wastelander" then
+            if v >= 2 and element == "Imaginary" then
+                elementMulti = elementMulti + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+        elseif i == "purity" then
+            if v >= 2 then
+                bee = bee + BalatroSR.convertFromPercentage(set["twopcsBonus"])
+            end
+            if v >= 4 then
+                extraxChip = extraxChip + (set["fourpcsBonus"] - 1)
+            end
+        elseif i == "wuthering" then
+            if v >= 2 and card.ability.extra.type == "Preservation" then
+                extraChips = extraChips + set["twopcsBonus"]
+            end
+        end
     end
  
     return {
@@ -1327,6 +1513,7 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
        ["elementMulti"] = elementMulti,
        ["eav"] = extraeav,
        ["speed"] = extraspeed,
+       ["def_pen"] = def_pen
     }
 end
 
@@ -1336,6 +1523,7 @@ BalatroSR.readBuffs = function(card)
         ["atkMulti"] = 1 + (relicBonus["atkMulti"] - 1),
         ["bee"] = 1 + (relicBonus["bee"] - 1),
         ["elementMulti"] = 1 + (relicBonus["elementMulti"] - 1),
+        ["def_pen"] = 1 + (relicBonus["def_pen"] - 1),
         ["speed"] = 0 + relicBonus["speed"],
         ["eav"] = 0 + relicBonus["eav"],
         ["cooldownRegenBonus"] = 0,

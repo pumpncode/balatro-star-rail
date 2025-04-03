@@ -55,6 +55,7 @@ function calculateBaseMulti(card, element, num, _, isDot, is_x_gain, cardInHand)
       loadStats(card)
       local elementMulti = (BalatroSR.readBuffs(card))["elementMulti"]
       local atkMulti = (BalatroSR.readBuffs(card))["atkMulti"]
+      local def_pen = (BalatroSR.readBuffs(card))["def_pen"]
 
       local def_reduction = cardInHandAbility.def_reduction or 0
       local dmg_taken_multi = cardInHandAbility.dmg_taken or 0
@@ -80,6 +81,7 @@ function calculateBaseMulti(card, element, num, _, isDot, is_x_gain, cardInHand)
             (1 + ((dmg_taken_multi or 0) / 100)),                                                                        --DMG Taken
             (extraStuff["gainEfficiency"] or 1),                                                                         --Gain Efficiency
             G.GAME[element .. "_multi"] or 1,
+            def_pen
          })
          return FinalRes
       elseif isDot then
@@ -104,6 +106,7 @@ function calculateBaseMulti(card, element, num, _, isDot, is_x_gain, cardInHand)
             (1 + (dot_multi or 0) / 100),                                                                                --DOT Multiplier
             (extraStuff["gainEfficiency"] or 1),                                                                         --Gain Efficiency
             G.GAME[element .. "_multi"] or 1,
+            def_pen
          })
          return FinalRes
       end
@@ -253,6 +256,41 @@ function HSRContextHandler(self, card, context, contextTable, specificDestroyCon
       end
    end
 
+   local allStats = BalatroSR.readBuffs(card)
+   if context.before and context.cardarea == G.jokers then
+      if allStats["alike"] then
+         for relicName, relicVal in pairs(allStats["alike"]) do
+            if relicName == "champion" and relicVal >= 4 then
+               buffJoker(card,card,"champion_pcs4")
+            elseif relicName == "wastelander" and relicVal >= 4 then
+               local cardDebuffed, allCardsDebuffed = false, false
+               local threshold = false
+
+               for _,v in ipairs(G.hand.cards) do
+                  if cardHasDebuff(v) then
+                     if not cardDebuffed then
+                        cardDebuffed = true
+                        threshold = true
+                     end
+                  else
+                     if threshold then
+                        threshold = false
+                        break
+                     end
+                  end
+               end
+
+               if threshold and cardDebuffed then allCardsDebuffed = true end
+               if allCardsDebuffed then
+                  buffJoker(card,card,"wastelander_pcs4_2")
+               elseif cardDebuffed then
+                  buffJoker(card,card,"wastelander_pcs4_1")
+               end
+            end
+         end
+      end
+   end
+
    if ability.handUsage then
       IncreaseHandUsage(self, card, context, ability.handUsage)
    end
@@ -263,14 +301,6 @@ function HSRContextHandler(self, card, context, contextTable, specificDestroyCon
    if speed_calc < 0 then speed_calc = 0 end
 
    if not contextTable or (contextTable and not contextTable["destroy_card"]) then
-      if context.destroying_card then
-         if context.destroying_card["hsr_to_be_destroyed"] then
-            return {
-               remove = true
-            }
-         end
-      end
-
       if context.destroy_card then
          if context.destroy_card["hsr_to_be_destroyed"] then
             return {
@@ -295,7 +325,10 @@ function HSRContextHandler(self, card, context, contextTable, specificDestroyCon
       end
 
       local RB = BalatroSR.readBuffs(card)
-      if RB and RB["alike"] and (RB["alike"]["passerby"] or 0) >= 4 then
+      if RB and RB["alike"] and (RB["alike"]["passerby"] or 0) >= 4 and card.ability.extra.type == "Abundance" then
+         card.ability.extra["self_retriggers"] = card.ability.extra["self_retriggers"] + 1
+      end
+      if RB and RB["alike"] and (RB["alike"]["wuthering"] or 0) >= 4 and card.ability.extra.type == "Preservation" then
          card.ability.extra["self_retriggers"] = card.ability.extra["self_retriggers"] + 1
       end
    end
@@ -1412,9 +1445,9 @@ function collectStats(card) --Mostly for generateUI, the stats board.
    local allStats = BalatroSR.readBuffs(card)
 
    local relicBuffs = BalatroSR.calculateRelics(card.ability.extra, nil, card.ability.extra.element, card)
-   retbee = retbee + (allStats["bee"] - 1) + relicBuffs["bee"]
-   retatkMulti = retatkMulti + (allStats["atkMulti"] - 1) + relicBuffs["atkMulti"]
-   retelementmulti = retelementmulti + (allStats["elementMulti"] - 1) + relicBuffs["elementMulti"]
+   retbee = retbee + (allStats["bee"] - 1)
+   retatkMulti = retatkMulti + (allStats["atkMulti"] - 1)
+   retelementmulti = retelementmulti + (allStats["elementMulti"] - 1)
    retspeed = allStats["speed"] + relicBuffs["speed"]
 
    return {
@@ -1637,6 +1670,28 @@ function scoreCheck(x, y) --Check whether current score is higher/lower than (or
    end
 end
 
+--Called when an Ultimate/FUA is used.
+function ultimateCall(card, types)
+   local allStats = BalatroSR.readBuffs(card)
+   if allStats.alike then
+      for relicName, relicVal in pairs(allStats.alike) do
+         if relicName == "hunter" and relicVal >= 4 then
+            buffJoker(card,card,"hunter_pcs4")
+         elseif relicName == "thunder" and relicVal >= 4 then
+            buffJoker(card,card,"thunder_pcs4")
+         elseif relicName == "firesmith" and relicVal >= 4 then
+            buffJoker(card,card,"firesmith_pcs4_1")
+            if card.ability.extra.element == "Fire" then
+               buffJoker(card,card,"firesmith_pcs4_2")
+            end
+         end
+      end
+   end
+end
+
+function fuaCall(card, types)
+
+end
 -- v:set_ability(G.P_CENTERS.m_wild, nil, true) <-- this is to change the card enhancement or smt
 --[[
   code to, like, change ur scoring hand to wild cards before scoring
@@ -1758,9 +1813,9 @@ SMODS.Joker { --Literal Trash
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -1874,9 +1929,9 @@ SMODS.Joker { --Arlan
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -1943,6 +1998,7 @@ SMODS.Joker { --March 7th (my beloved)
          card.ability.extra.ultCooldown = card.ability.extra.ultCooldown + 1 + CooldownRegenBonus
 
          if card.ability.extra.ultCooldown >= card.ability.extra.ultRequiredCooldown then
+            ultimateCall(card)
             card.ability.extra.ultCooldown = 0
             local numToConvert = 2
             if card.ability.extra.currentEidolon >= 6 then
@@ -2026,9 +2082,9 @@ SMODS.Joker { --March 7th (my beloved)
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -2193,9 +2249,9 @@ SMODS.Joker { --Dan Heng
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -2310,9 +2366,9 @@ SMODS.Joker { --Sampo
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -2409,6 +2465,7 @@ SMODS.Joker { --Pela
 
       if context.individual and context.cardarea == G.hand and card.ability.extra.ultCooldown >= card.ability.extra.ultRequiredCooldown and not context.end_of_round and not context.blueprint then
          card.ability.extra.ultCooldown = 0
+         ultimateCall(card)
          for i, v in pairs(G.hand.cards) do
             local cardInHand = v
             local e = 1
@@ -2469,9 +2526,9 @@ SMODS.Joker { --Pela
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -2553,6 +2610,7 @@ SMODS.Joker { --Natasha
          if ultTime >= 1 then --Activate Ultimate.
             for i = 1, ultTime do
                if card.ability.extra.ultCooldown >= card.ability.extra.ultRequiredCooldown then
+                  ultimateCall(card)
                   card.ability.extra.ultCooldown = card.ability.extra.ultCooldown -
                       card.ability.extra.ultRequiredCooldown
                   G.GAME.current_round.hands_left = G.GAME.current_round.hands_left + 1
@@ -2608,9 +2666,9 @@ SMODS.Joker { --Natasha
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -2754,9 +2812,9 @@ SMODS.Joker { --Tingyun
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -2867,6 +2925,7 @@ SMODS.Joker { --Asta
          if card.ability.extra.ultCooldown1 >= card.ability.extra.ultRequiredCooldown1 and card.ability.extra.ultCooldown2 >= card.ability.extra.ultRequiredCooldown2 then
             card.ability.extra.ultCooldown1 = 0
             card.ability.extra.ultCooldown2 = 0
+            ultimateCall(card)
 
             for i, v in ipairs(G.jokers.cards) do
                if isHSRJoker(v) then
@@ -2926,9 +2985,9 @@ SMODS.Joker { --Asta
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -3035,6 +3094,7 @@ SMODS.Joker { --Herta
 
       if context.joker_main and card.ability["herta_fua"] then
          local he_chips = 0
+         fuaCall(card, {attack = true})
          for _, cardInHand in ipairs(G.hand.cards) do
             local he_xchips = 1
             local increasePerPlay = 25
@@ -3111,9 +3171,9 @@ SMODS.Joker { --Herta
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -3393,9 +3453,9 @@ SMODS.Joker { --Qingque
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -3465,6 +3525,7 @@ SMODS.Joker { --Serval
 
       if context.before and context.cardarea == G.jokers and card.ability.extra.ultCooldown >= card.ability.extra.ultRequiredCooldown then
          card.ability.extra.ultCooldown = 0
+         ultimateCall(card)
          for _, v in ipairs(G.hand.cards) do
             if card.ability.extra.currentEidolon >= 4 and pseudorandom("hsr_serval_rng_e4") <= 1 / 2 then
                inflictDebuff(card, v, "serval_e4")
@@ -3545,9 +3606,9 @@ SMODS.Joker { --Serval
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -3740,9 +3801,9 @@ SMODS.Joker { --Hook
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -3922,9 +3983,9 @@ SMODS.Joker { --Sushang
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -4086,9 +4147,9 @@ SMODS.Joker { --Yanqing
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -4276,9 +4337,9 @@ SMODS.Joker { --Welt
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -4432,6 +4493,7 @@ SMODS.Joker { --Himeko
       end
 
       if context.individual and context.cardarea == G.play and card.ability["himeko_fua"] then
+         fuaCall(card, {attack = true})
          local clone = {}
          for _, v in ipairs(G.play.cards) do
             clone[#clone + 1] = v
@@ -4500,9 +4562,9 @@ SMODS.Joker { --Himeko
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -4689,9 +4751,9 @@ SMODS.Joker { --Bailu
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -4806,6 +4868,7 @@ SMODS.Joker { --Jing Yuan
 
       if context.joker_main then
          if card.ability.extra.hpa > 0 then
+            fuaCall(card, {attack = true})
             local cardsToDestroy = {}
             if card.ability.extra.currentEidolon >= 4 then
                for _ = 1, card.ability.extra.hpa do
@@ -4921,9 +4984,9 @@ SMODS.Joker { --Jing Yuan
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -4988,30 +5051,23 @@ SMODS.Joker { --Clara
       end
 
       if context.destroy_card then
-         if card.ability["card_to_destroy"] then
-            for index, destroyingCard in pairs(card.ability["card_to_destroy"]) do
-               if context.destroy_card == destroyingCard then
-                  local adjacentCards = BalatroSR.adjacentCards(context.destroy_card, G.hand, true, 3)
-
-                  if card.ability.extra.currentEidolon >= 1 and adjacentCards then
-                     for _, cardInHand in ipairs(adjacentCards) do
-                        if cardInHand.ability and not cardInHand.ability["clara_mark"] then
-                           inflictDebuff(card,
-                              cardInHand, "clara_mark", "Marked!")
-                        end
-                     end
+         if context.destroy_card.ability["clara_mark"] then
+            local adjacentCards = BalatroSR.adjacentCards(context.destroy_card, G.hand, true, 3)
+            if card.ability.extra.currentEidolon >= 1 and adjacentCards then
+               for _, cardInHand in ipairs(adjacentCards) do
+                  if cardInHand.ability and not cardInHand.ability["clara_mark"] then
+                     inflictDebuff(card,cardInHand, "clara_mark", "Marked!")
                   end
-
-                  if card.ability.extra.currentEidolon >= 2 then
-                     buffJoker(card, card, "clara_e2")
-                  end
-
-                  card.ability["card_to_destroy"][index] = nil
-                  return {
-                     remove = true
-                  }
                end
             end
+
+            if card.ability.extra.currentEidolon >= 2 then
+               buffJoker(card, card, "clara_e2")
+            end
+
+            return {
+               remove = true
+            }
          end
       end
 
@@ -5034,8 +5090,6 @@ SMODS.Joker { --Clara
                markedCards[#markedCards + 1] = v
             end
          end
-
-         addToDestroy(card, markedCards)
 
          if #markedCards >= 1 then
             local multIncrease = 10
@@ -5084,9 +5138,9 @@ SMODS.Joker { --Clara
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -5254,9 +5308,9 @@ SMODS.Joker { --Seele
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -5402,9 +5456,9 @@ SMODS.Joker { --Bronya
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -5466,6 +5520,7 @@ SMODS.Joker { --Kafka
 
       if context.before and context.cardarea == G.jokers and card.ability.extra.ultCooldown >= card.ability.extra.ultRequiredCooldown then
          card.ability.extra.ultCooldown = 0
+         ultimateCall(card)
          for _, v in ipairs(G.hand.cards) do
             inflictDebuff(card, v, "kafka_dot", "Amplified Shock!", true, nil, true)
          end
@@ -5550,9 +5605,9 @@ SMODS.Joker { --Kafka
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26
@@ -5725,9 +5780,9 @@ SMODS.Joker { --Gepard
          ---Stats
          allGains["speed"],                        --20
          center.ability.extra.excess_action_value, --21
-         allGains["atkMulti"] * 100 - 100,         --22
-         allGains["bee"] * 100 - 100,              --23
-         allGains["elementMulti"] * 100 - 100,     --24
+         allGains["atkMulti"] * 100,         --22
+         allGains["bee"] * 100,              --23
+         allGains["elementMulti"] * 100 ,     --24
          allGains["otherStats"],                   --25
          ---Planar
          center.ability.extra.orbName,             --26

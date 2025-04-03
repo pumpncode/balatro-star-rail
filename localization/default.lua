@@ -734,7 +734,7 @@ return { --remind me to work on this
                     "For each card with the same base {C:attention}Suit{} in played hand, increases {C:attention}Tile{} by 1",
                     "When {C:attention}Tile{} is 4, resets to 0 and enters {C:attention}Cherry on Top!{} state",
                     "{C:inactive}If Joker has {}{C:attention}Cherry on Top!{}{C:inactive}:",
-                    "{C:inactive}- Scored cards give {}{C:white,X:mult}X4{}{C:inactive} Mult, {}{C:white,X:chips}X2{}{C:inactive} Chips, {}{C:money}$1{}",
+                    "{C:inactive}- [Attack] Scored cards give {}{C:white,X:mult}X4{}{C:inactive} Mult, {}{C:white,X:chips}X2{}{C:inactive} Chips, {}{C:money}$1{}",
                     "{C:inactive}- Exits {}{C:attention}Cherry on Top!{}{C:inactive} state at the end of hand{}",
                     "{C:inactive}[Current Tiles: #31#]{}"
                 }

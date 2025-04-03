@@ -315,6 +315,8 @@ function removeParts(b,replace) --Remove certain parts of a string.
         "{C:",
         "{X:",
         "{s:",
+        "{V:",
+        "{E:",
     } 
 
     if type(b) == "string" then    
