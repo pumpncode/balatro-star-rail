@@ -5753,7 +5753,7 @@ SMODS.Joker { --Gepard
       local allGains = collectStats(center)
 
       local stone_counter = 0
-      for _, c in ipairs(G.playing_cards) do
+      for _, c in ipairs(G.playing_cards or {}) do
          if SMODS.has_enhancement(c, "m_stone") then stone_counter = stone_counter + 1 end
       end
 
