@@ -1413,7 +1413,7 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
             extraxChip = extraxChip + (set["baseXChip"] - 1)
             bee = bee + BalatroSR.convertFromPercentage(set["baseBEE"])  
         elseif setName == "purity" then
-            extraxChip = extraXChip + (set["baseXChip"] - 1)
+            extraxChip = extraxChip + (set["baseXChip"] - 1)
         elseif setName == "wuthering" then
             extraxMult = extraxMult + (set["baseXMult"] - 1)
         end
