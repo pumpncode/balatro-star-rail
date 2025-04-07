@@ -5554,7 +5554,7 @@ SMODS.Joker { --Kafka
          return (calculateDOT(card, context))
       end
 
-      if context.discard and card.ability.extra.currentEidolon >= 2 and not context.blueprint then
+      if context.discard and card.ability.extra.currentEidolon >= 2 and not context.blueprint and not context.joker_retrigger then
          for i, v in ipairs(G.hand.highlighted) do
             local cardInHand = G.hand.highlighted[i]
 
