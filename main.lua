@@ -1306,17 +1306,18 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
     local def_pen = 1
  
     local alike = {
-       musketeer = 0,
-       thief = 0,
-       passerby = 0,
-       eagle = 0,
-       hunter = 0,
-       thunder = 0,
-       champion = 0,
-       firesmith = 0,
-       genius = 0,
-       purity = 0,
-       wuthering = 0,
+        musketeer = 0,
+        thief = 0,
+        passerby = 0,
+        eagle = 0,
+        hunter = 0,
+        thunder = 0,
+        champion = 0,
+        firesmith = 0,
+        genius = 0,
+        wasterlander = 0
+        purity = 0,
+        wuthering = 0,
     } --...remind me to add ALL relic keys here.
  
     local specificConditions = {
