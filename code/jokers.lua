@@ -4821,7 +4821,7 @@ SMODS.Joker { --Jing Yuan
             card.ability.extra.hpa = 0
          end
 
-         local toCopy = G.play.cards
+         local toCopy = G.play.cards or {}
          local copied = {}
 
          local differentSuits = {}
