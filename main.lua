@@ -1315,7 +1315,7 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
         champion = 0,
         firesmith = 0,
         genius = 0,
-        wasterlander = 0
+        wastelander = 0,
         purity = 0,
         wuthering = 0,
     } --...remind me to add ALL relic keys here.
