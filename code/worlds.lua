@@ -502,7 +502,7 @@ function create_UIBox_blind_choice(type, run_info) --Add another button to Boss 
         G.E_MANAGER:add_event(Event({ --Clearing the snow particles
             trigger = 'immediate',
             func = function()
-                repeat until G.blind_select_opts.boss
+                repeat until G.blind_select and G.blind_select_opts.boss
                 if G.blind_select_opts.boss then
                     local isShowdown = false
                     for i,v in pairs(G.P_BLINDS) do
