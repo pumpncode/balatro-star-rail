@@ -5319,7 +5319,7 @@ SMODS.Joker { --Seele
          center.ability.extra.ropeEffect,          --29
          center.ability.extra.planarsetEffect,     --30
          --Colours
-         colours = { G.C.SUITS[center.ability.extra.repeatSuit], G.C.hsr_colors["hsr_" .. string.lower(center.ability.extra.element)] },
+         colours = {G.C.hsr_colors["hsr_" .. string.lower(center.ability.extra.element)],G.C.SUITS[center.ability.extra.repeatSuit]},
          --Other vars
          string.sub(center.ability.extra.repeatSuit, 1, (#center.ability.extra.repeatSuit - 1)),
          BalatroSR.turnIDToText(center.ability.extra.chosenRank),
