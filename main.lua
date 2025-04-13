@@ -1533,7 +1533,7 @@ BalatroSR.readBuffs = function(card)
         ["xChip"] = 1,
         ["alike"] = {},
         ["text"] = {},
-    }
+    } end
         
     local relicBonus = BalatroSR.calculateRelics(card.ability.extra,nil,card.ability.extra.element,card)
     local ret = {
