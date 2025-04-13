@@ -1519,6 +1519,22 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
 end
 
 BalatroSR.readBuffs = function(card)
+    if not card.ability.extra then return {
+        ["atkMulti"] = 0,
+        ["bee"] = 0,
+        ["elementMulti"] = 0,
+        ["def_pen"] = 0,
+        ["speed"] = 0,
+        ["eav"] = 0,
+        ["cooldownRegenBonus"] = 0,
+        ["mult"] = 0,
+        ["chip"] = 0,
+        ["xMult"] = 1,
+        ["xChip"] = 1,
+        ["alike"] = {},
+        ["text"] = {},
+    }
+        
     local relicBonus = BalatroSR.calculateRelics(card.ability.extra,nil,card.ability.extra.element,card)
     local ret = {
         ["atkMulti"] = 1 + (relicBonus["atkMulti"] - 1),
