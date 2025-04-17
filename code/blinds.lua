@@ -2,33 +2,29 @@
 
 to_big = to_big or function(x) return x end
 
+Ctbl = {r = 255, g = 0, b = 0}
+function Rainbow()
+   if (Ctbl.r > 0 and Ctbl.b == 0) then
+      Ctbl.r = Ctbl.r - 1
+      Ctbl.g = Ctbl.g + 1
+   end
+  
+   if (Ctbl.g > 0 and Ctbl.r == 0) then
+      Ctbl.g = Ctbl.g - 1
+      Ctbl.b = Ctbl.b + 1
+   end
+  
+   if (Ctbl.b > 0 and Ctbl.g == 0) then
+      Ctbl.r = Ctbl.r + 1
+      Ctbl.b = Ctbl.b - 1
+   end
+end
+
 local defaultUISize = 6
 local hsrUISize = 1
 SMODS.current_mod.passive_ui_size = function()
    return math.min(hsrUISize,defaultUISize)
 end
-
-SMODS.Blind{ --Test Blind
-   key = 'Test',
-   loc_txt = {
-      name = 'YOU ARE FUCKEDDDDDD',
-      text = {
-         'All Jokers are debuffed'
-      }
-   },
-   config = {extra = {hsr_blindType = "Small"}},
-   dollars = 5,
-   mult = 0.1,
-   boss_colour = HEX('C8831B'),
-   boss = {min = 5, max = 5},
-   in_pool = function(self)
-     return false
-   end,
-   
-   recalc_debuff = function(self,card,from_blind)
-     if card.ability.set == 'Joker' then return true end
-   end,
-}
 
 local hookTo = ease_background_colour_blind
 function ease_background_colour_blind(state, blind_override) --FORCE THE FUCKING GAME OTIMOATIEOAM TO change color of the background :3
@@ -43,9 +39,18 @@ end
 
 local hookTo = Game.start_run
 function Game:start_run(args) --To change the background color even when you re-enter the run
+   G.hsr_asriel_bg_triggered = false
    hookTo(self, args)
 
    ease_background_colour_blind()
+
+   if G and G.GAME and G.GAME and G.GAME.blind.name == "bl_hsr_Cocolia" and G.GAME.current_round.phases_beaten >= 1 then
+      G.GAME.blind.children.animatedSprite:set_sprite_pos({x = 0, y = 6})
+   end
+
+   if G and G.GAME and G.GAME.blind.name == "bl_hsr_Asriel" then
+      hsr_restart_music()
+   end
 
    if G and G.GAME and G.GAME.blind and (G.GAME.blind.name == "bl_hsr_Svarog" or G.GAME.blind.name == "bl_hsr_Cocolia") then --Ensuring that Particles are loaded even when run is reloaded
       G.E_MANAGER:add_event(Event({
@@ -80,7 +85,7 @@ function Game.update(self, dt)
             G.hsr_cutscene_transparency = 1 - G.hsr_cutscene_timer / 1
          end
          if G.hsr_cutscene_timer >= 1.25 then 
-            G.CANV_SCALE = 1
+            G.CANV_SCALE = 1 
             G.hsr_cutscene_transparency = 0
             G.hsr_displaying_cutscene = false
             G.SETTINGS.paused = false
@@ -191,6 +196,15 @@ function hsr_display_cutscene(pos, c_type, delay_pause) --Copied from LCorp's di
    return true end }))
 end
 
+SMODS.Atlas {
+   key = 'hsrblinds',         --atlas key
+   path = 'blind.png', --atlas' path in (yourMod)/assets/1x or (yourMod)/assets/2x
+   px = 34,               --width of one card
+   py = 34,                -- height of one card
+   atlas_table = "ANIMATION_ATLAS",
+   frames = 1,
+}
+
 --Small Blinds
 SMODS.Blind{ --Frostspawn
    key = 'Frostspawn',
@@ -202,6 +216,8 @@ SMODS.Blind{ --Frostspawn
          'hand to Stone',
       }
    },
+   atlas = 'hsrblinds',
+   pos = {x = 0, y = 1},
    dollars = 5,
    mult = 1.2,
    boss_colour = G.C.hsr_colors.hsr_ice,
@@ -257,6 +273,138 @@ SMODS.Blind{ --Frostspawn
    end
 }
 
+SMODS.Blind{ --Thunderspawn
+   key = 'Thunderspawn',
+   loc_txt = {
+      name = 'Thunderspawn',
+      text = {
+         'X0.75 Mult',
+      }
+   },
+   atlas = 'hsrblinds',
+   pos = {x = 0, y = 2},
+   dollars = 5,
+   mult = 1.2,
+   boss_colour = G.C.hsr_colors.hsr_lightning,
+   boss = {min = 1, max = 1},
+   passives = {
+      "psv_hsr_Thunderspawn_ER",
+   },
+   config = {extra = {hsr_blindType = "Small"}},
+   resistances1 = {"Imaginary", "Quantum", "Ice", "Fire"},
+   resistances2 = {"Lightning"},
+   --weaknesses = {"Fire","Lightning","Wind"},
+
+   in_pool = function(self)
+      return false
+   end,
+
+   defeat = function(self)
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.6
+      end
+   end,
+
+   set_blind = function(self)
+      --Elemental Resistance stuff
+      G.GAME["hsr_thunderspawn_blind"] = {}
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.6
+      end
+   end,
+
+   calculate = function(self,card,context)
+      if context.final_scoring_step then
+         return{xmult = 0.75}
+      end
+   end
+}
+
+SMODS.Blind{ --Windspawn
+   key = 'Windspawn',
+   loc_txt = {
+      name = 'Windspawn',
+      text = {
+         'Cards in hand have',
+         '25% to give X0.8',
+         'Mult'
+      }
+   },
+   atlas = 'hsrblinds',
+   pos = {x = 0, y = 3},
+   dollars = 5,
+   mult = 1.2,
+   boss_colour = G.C.hsr_colors.hsr_wind,
+   boss = {min = 1, max = 1},
+   passives = {
+      "psv_hsr_Windspawn_ER",
+   },
+   config = {extra = {hsr_blindType = "Small"}},
+   resistances1 = {"Imaginary", "Quantum", "Ice", "Physical"},
+   resistances2 = {"Wind"},
+   --weaknesses = {"Fire","Lightning","Wind"},
+
+   in_pool = function(self)
+      return false
+   end,
+
+   defeat = function(self)
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.6
+      end
+   end,
+
+   set_blind = function(self)
+      --Elemental Resistance stuff
+      G.GAME["hsr_windspawn_blind"] = {}
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.6
+      end
+   end,
+
+   calculate = function(self,card,context)
+      if context.final_scoring_step then
+         for _,v in ipairs(G.hand.cards or {}) do
+            if pseudorandom("hsr_windspawn_rng") < 1/4 then
+               SMODS.calculate_effect({xmult = 0.8}, v)
+            end
+         end
+      end
+   end
+}
+
 SMODS.Blind{ --Flamespawn
    key = 'Flamespawn',
    loc_txt = {
@@ -267,6 +415,8 @@ SMODS.Blind{ --Flamespawn
          'card in hand',
       }
    },
+   atlas = 'hsrblinds',
+   pos = {x = 0, y = 0},
    dollars = 5,
    mult = 1.2,
    boss_colour = G.C.hsr_colors.hsr_fire,
@@ -322,6 +472,128 @@ SMODS.Blind{ --Flamespawn
    end
 }
 --Big Blinds
+SMODS.Blind{ --Flamespawn
+   key = 'A_Direwolf',
+   loc_txt = {
+      name = 'Automaton Direwolf',
+      text = {
+         'A humanoid Automaton with',
+         'a chainsaw, persumably',
+         'used for mining or construction',
+      }
+   },
+   dollars = 6,
+   mult = 2,
+   boss_colour = G.C.hsr_colors.hsr_physical,
+   boss = {min = 1, max = 1},
+   passives = {
+      "psv_hsr_A_Direwolf_ER",
+      "psv_hsr_A_Direwolf_passive1",
+      "psv_hsr_A_Direwolf_passive2",
+   },
+   config = {extra = {hsr_blindType = "Big"}},
+   resistances1 = {"Physical", "Fire", "Wind", "Quantum"},
+   --weaknesses = {"Fire","Lightning","Wind"},
+
+   in_pool = function(self)
+      return false
+   end,
+
+   defeat = function(self)
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) + 0.6
+      end
+   end,
+
+   set_blind = function(self)
+      --Elemental Resistance stuff
+      G.GAME["hsr_a_direwolf_blind"] = {}
+      for _,r in ipairs(self.resistances1 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.2
+      end
+
+      for _,r in ipairs(self.resistances2 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.4
+      end
+
+      for _,r in ipairs(self.resistances3 or {}) do
+         G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.6
+      end
+   end,
+
+   calculate = function(self,card,context)
+      if context.destroy_card and context.destroy_card.ability.markedByDirewolf then
+         return true
+      end
+
+      if context.final_scoring_step then
+         if (mult * hand_chips) >= (G.GAME.blind.chips/2) then
+            for i,v in ipairs(context.scoring_hand or {}) do
+               v.ability.markedByDirewolf = true
+            end
+         end
+      end
+
+      if context.before then
+         local numDestroyed = 0
+
+         if find_passive("psv_hsr_A_Direwolf_passive2_1") then
+            for _ = 1,3 do
+               local validPool = {}
+               for _,v in ipairs(G.hand.cards or {}) do
+                  if not v.ability["markedByDirewolf"] then validPool[#validPool+1] = v end
+               end
+
+               if #validPool > 0 then pseudorandom_element(validPool, pseudoseed("bl_hsr_A_Direwolf_rng")).ability.markedByDirewolf = true numDestroyed = numDestroyed + 1 end
+            end
+
+            if numDestroyed >= #(G.hand.cards or {}) then
+               if #G.jokers.cards > 0 then
+                  local jokerIsMarked = pseudorandom_element(G.jokers.cards,pseudoseed("bl_hsr_A_Direwolf_rng2"))
+                  G.E_MANAGER:add_event(Event({ --Destroy the marked Joker
+                  func = function()
+                     jokerIsMarked.T.r = -0.2
+                     jokerIsMarked:juice_up(0.3, 0.4)
+                     jokerIsMarked.states.drag.is = true
+                     jokerIsMarked.children.center.pinch.x = true
+          
+                     G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.3, blockable = false,
+                           func = function()
+                              G.jokers:remove_card(jokerIsMarked)
+                              jokerIsMarked:remove()
+                              jokerIsMarked = nil
+                              return true; end})) 
+                     return true
+                  end
+                  })) 
+               end
+            end
+         end
+      end
+
+      if context.after and context.scoring_name == "High Card" then
+         for i,v in pairs(G.GAME.blind.passives) do
+            if v == "psv_hsr_A_Direwolf_passive2" then
+               table.remove(G.GAME.blind.passives,i)
+               table.insert(G.GAME.blind.passives,"psv_hsr_A_Direwolf_passive2_1")
+
+               return {
+                  message = localize("hsr_a_direwolf"..math.random(1,3))
+               }
+            end
+         end
+      end
+      
+   end
+}
 
 --Boss Blinds
 
@@ -334,6 +606,8 @@ SMODS.Blind{ --Svarog
          'of Belobog'
       }
    },
+   atlas = "hsrblinds",
+   pos = {x = 0, y = 4},
    dollars = 10,
    mult = 3.5,
    boss_colour = HEX('919191'),
@@ -352,6 +626,7 @@ SMODS.Blind{ --Svarog
 
    set_blind = function(self)
       --Elemental Resistance stuff
+      hsr_restart_music()
       G.GAME["hsr_svarog_blind"] = {}
       for _,r in ipairs(self.resistances or {}) do
          G.GAME[r.."_multi"] = (G.GAME[r.."_multi"] or 1) - 0.2
@@ -625,6 +900,8 @@ SMODS.Blind{ --Cocolia
          'of Belobog'
       }
    },
+   atlas = "hsrblinds",
+   pos = {x = 0, y = 5},
    dollars = 10,
    mult = 3.5,
    boss_colour = HEX('91ccff'),
@@ -729,7 +1006,14 @@ SMODS.Blind{ --Cocolia
       ease_hands_played(G.GAME.round_resets.hands - G.GAME.current_round.hands_left)
       
       if G.GAME.current_round.phases_beaten == 1 then
-         G.GAME.blind.passives = self.passives2
+         G.GAME.blind.passives = {
+            "psv_hsr_Cocolia_ER",
+            "psv_hsr_Showdown",
+            "psv_hsr_Cocolia_passive2_1",
+            "psv_hsr_Cocolia_passive2_2",
+            "psv_hsr_Cocolia_passive2_3",
+         }
+         G.GAME.blind.children.animatedSprite:set_sprite_pos({x = 0, y = 6})
          G.E_MANAGER:add_event(Event({trigger = 'before', func = function() 
             hsr_display_cutscene({x = 0, y = 0}, "Cocolia", 0.1)
          return true end }))
@@ -743,7 +1027,31 @@ SMODS.Blind{ --Cocolia
             end)
          }))
       elseif G.GAME.current_round.phases_beaten == 2 then
-         G.GAME.blind.passives = self.passives3
+         G.FUNCS.draw_from_discard_to_deck()
+         G.FUNCS.draw_from_hand_to_deck()
+         G.E_MANAGER:add_event(Event({
+             trigger = 'before',
+             delay = 1,
+             blockable = false,
+             func = function()
+                 G.E_MANAGER:add_event(Event({
+                     trigger = 'immediate',
+                     func = function()
+                         G.deck:shuffle('bl_hsr_Cocolia_refresh')
+                         G.deck:hard_set_T()
+                     return true
+                     end
+                 }))
+             return true
+             end
+         }))
+         G.GAME.blind.passives = {
+            "psv_hsr_Cocolia_ER",
+            "psv_hsr_Showdown",
+            "psv_hsr_wtf",
+            "psv_hsr_Cocolia_passive3_1",
+            "psv_hsr_Cocolia_passive3_nuke",
+         }
          G.E_MANAGER:add_event(Event({
             func = (function()
                local text = localize('hsr_phase_3')

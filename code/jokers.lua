@@ -234,7 +234,7 @@ function addEidolon(self, card, context) --Eidolon handler for HSR Jokers.
    end
 end
 
-function HSRContextHandler(self, card, context, contextTable, specificDestroyContext) --Put this in every HSR Joker. contextTable is used to tell HSRContextHandler to ignore certain automated contexts, useful for adding your own context.
+function HSRContextHandler(self, card, context, contextTable) --Put this in every HSR Joker. contextTable is used to tell HSRContextHandler to ignore certain automated contexts, useful for adding your own context.
    local ret = nil
    local speedIncrease = 0
    local cardAbility = card.ability
@@ -635,7 +635,7 @@ function cardHasBuff(card, specificBuff) --Used to check if a HSR Joker has the 
    end
 end
 
-function clearCardDebuff(cardInHand, debuff, stack_to_remove) --To clear specific debuffs from playing cards. If stack is declared, reduces by that amount of stacks. Else, removes the debuff entirely.
+function clearCardDebuff(cardInHand, debuff, stack_to_remove, clearMessage, clearMessageImmediate) --To clear specific debuffs from playing cards. If stack is declared, reduces by that amount of stacks. Else, removes the debuff entirely.
    if cardInHand.ability and cardHasDebuff(cardInHand, debuff) then
       local findDebuff = nil
       for i, v in pairs(CardStats["CharacterDebuffs"]) do
@@ -700,6 +700,18 @@ function clearCardDebuff(cardInHand, debuff, stack_to_remove) --To clear specifi
                cardInHand.ability[debuff .. "_duration"] = nil
             end
          end
+      end
+
+      if clearMessage then
+         G.E_MANAGER:add_event(Event({
+            trigger = (clearMessageImmediate and "immediate") or "before",
+            delay = 0.0,
+            func = function()
+               cardInHand:juice_up()
+               card_eval_status_text(cardInHand, 'extra', nil, nil, nil, { message = clearMessage })
+               return true
+            end
+         }))
       end
    end
 end
@@ -1635,6 +1647,7 @@ end
 
 function HDRemove(card) --Fun fact: H stands for Hands, while D stands for Discards :3
    local cardAbility = card.ability
+   local cardExtra = cardAbility.extra
 
    if cardAbility["given_hand"] and card.ability["given_hand"] ~= 0 then
       G.GAME.round_resets.hands = G.GAME.round_resets.hands - cardAbility["given_hand"]
@@ -1644,6 +1657,25 @@ function HDRemove(card) --Fun fact: H stands for Hands, while D stands for Disca
    if cardAbility["given_discard"] and card.ability["given_discard"] ~= 0 then
       G.GAME.round_resets.discards = G.GAME.round_resets.discards - cardAbility["given_discard"]
       ease_discard(-cardAbility["given_discard"])
+   end
+
+   local bodyParts = {
+      "head", "body", "hands", "feet"
+   } --freaky ahh table name :sob:
+   for _,v in ipairs(bodyParts) do
+      if cardExtra[v] then
+         local relicKey = "c_hsr_"..v.."_"..cardExtra[v]
+         G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.1,
+            func = function()
+               local dup = SMODS.create_card({set = 'Consumeable', skip_materialize = true, key = relicKey, no_edition = true})
+               dup:add_to_deck()
+               G.consumeables:emplace(dup)
+               return true
+            end
+         }))
+      end
    end
 end
 
@@ -1735,6 +1767,12 @@ SMODS.Atlas {
 }
 
 ---3-Star
+SMODS.Atlas {
+   key = "trash_atlas",
+   path = "trash.png",
+   px = 71,
+   py = 95,
+}
 SMODS.Joker { --Literal Trash
    key = 'Trash',
    config = {
@@ -1746,7 +1784,7 @@ SMODS.Joker { --Literal Trash
          'the beloved of trailblazer'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'trash_atlas',
    rarity = "hsr_3stars",
    cost = 1,
    unlocked = true,
@@ -1948,6 +1986,13 @@ SMODS.Joker { --Arlan
 
 }
 
+SMODS.Atlas {
+   key = "m7_atlas",
+   path = "m7.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --March 7th (my beloved)
    key = 'M7',
    config = {
@@ -1959,7 +2004,7 @@ SMODS.Joker { --March 7th (my beloved)
          'you complete me(ss)'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'm7_atlas',
    rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
@@ -1970,7 +2015,7 @@ SMODS.Joker { --March 7th (my beloved)
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -2270,6 +2315,13 @@ SMODS.Joker { --Dan Heng
 
 }
 
+SMODS.Atlas {
+   key = "sampo_atlas",
+   path = "sampo.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Sampo
    key = 'Sampo',
    config = {
@@ -2281,18 +2333,18 @@ SMODS.Joker { --Sampo
          'watdahellboi'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'sampo_atlas',
    rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
    discovered = true,
-   blueprint_compat = false,
+   blueprint_compat = true,
    eternal_compat = true,
    perishable_compat = false,
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -2422,7 +2474,7 @@ SMODS.Joker { --Pela
    cost = 1,
    unlocked = true,
    discovered = true,
-   blueprint_compat = false,
+   blueprint_compat = true,
    eternal_compat = true,
    perishable_compat = false,
    in_pool = function(self, args)
@@ -2550,6 +2602,13 @@ SMODS.Joker { --Pela
    end,
 }
 
+SMODS.Atlas {
+   key = "natasha_atlas",
+   path = "natasha.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Natasha
    key = 'Natasha',
    config = {
@@ -2561,7 +2620,7 @@ SMODS.Joker { --Natasha
          'mommy nurse'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'natasha_atlas',
    rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
@@ -2569,7 +2628,7 @@ SMODS.Joker { --Natasha
    blueprint_compat = true,
    eternal_compat = true,
    perishable_compat = false,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
    in_pool = function(self, args)
       return false
    end,
@@ -2689,6 +2748,13 @@ SMODS.Joker { --Natasha
    end,
 }
 
+SMODS.Atlas {
+   key = "tingyun_atlas",
+   path = "tingyun.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Tingyun
    key = 'Tingyun',
    config = {
@@ -2700,7 +2766,7 @@ SMODS.Joker { --Tingyun
          'cute fox lady'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'tingyun_atlas',
    rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
@@ -2711,7 +2777,7 @@ SMODS.Joker { --Tingyun
       return false
    end,
    perishable_compat = false,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -3023,6 +3089,13 @@ SMODS.Joker { --Asta
    end,
 }
 
+SMODS.Atlas {
+   key = "herta_atlas",
+   path = "herta.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Herta
    key = 'Herta',
    config = {
@@ -3034,7 +3107,7 @@ SMODS.Joker { --Herta
          'cute and funny doll'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'herta_atlas',
    rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
@@ -3045,7 +3118,7 @@ SMODS.Joker { --Herta
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -3837,6 +3910,13 @@ SMODS.Joker { --Hook
 
 }
 
+SMODS.Atlas {
+   key = "sushang_atlas",
+   path = "sushang.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Sushang
    key = 'Sushang',
    config = {
@@ -3848,7 +3928,7 @@ SMODS.Joker { --Sushang
          'swordswoman'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'sushang_atlas',
    rarity = "hsr_4stars",
    cost = 1,
    unlocked = true,
@@ -3859,7 +3939,7 @@ SMODS.Joker { --Sushang
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -4358,6 +4438,13 @@ SMODS.Joker { --Welt
    end,
 }
 
+SMODS.Atlas {
+   key = "himeko_atlas",
+   path = "himeko.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Himeko
    key = 'Himeko',
    config = {
@@ -4369,7 +4456,7 @@ SMODS.Joker { --Himeko
          'never let you goooo'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'himeko_atlas',
    rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
@@ -4380,7 +4467,7 @@ SMODS.Joker { --Himeko
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -4581,6 +4668,13 @@ SMODS.Joker { --Himeko
    end,
 }
 
+SMODS.Atlas {
+   key = "bailu_atlas",
+   path = "bailu.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Bailu
    key = 'Bailu',
    config = {
@@ -4592,7 +4686,7 @@ SMODS.Joker { --Bailu
          'they stole our potentially best girl...'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'bailu_atlas',
    rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
@@ -4603,7 +4697,7 @@ SMODS.Joker { --Bailu
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -4883,22 +4977,22 @@ SMODS.Joker { --Jing Yuan
                card_eval_status_text(card, 'extra', nil, nil, nil, { message = localize("hsr_jingyuan_message") })
 
                for _, cardInHand in ipairs(radCard) do
-                  local jy_Mult = 5
+                  local jy_Mult = 25
                   local jy_xMult = 1
                   local jy_xChips = 1
 
                   if SMODS.has_enhancement(cardInHand, 'm_lucky') then
                      if pseudorandom("hsr_jy_luckycheck") <= 1 / 2 then
-                        jy_xMult = jy_xMult + 0.2
+                        jy_xMult = jy_xMult + 1
                      end
                   end
 
                   if SMODS.has_enhancement(cardInHand, 'm_mult') then
-                     jy_xMult = jy_xMult + 0.1
+                     jy_xMult = jy_xMult + 0.5
                   end
 
                   if SMODS.has_enhancement(cardInHand, 'm_glass') then
-                     jy_xChips = jy_xChips + 0.5
+                     jy_xChips = jy_xChips + 1
                      table.insert(cardsToDestroy, cardInHand)
                   end
 
@@ -5329,6 +5423,13 @@ SMODS.Joker { --Seele
    end,
 }
 
+SMODS.Atlas {
+   key = "bronya_atlas",
+   path = "bronya.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Bronya
    key = 'Bronya',
    config = {
@@ -5340,18 +5441,18 @@ SMODS.Joker { --Bronya
          'basically blueprint but on steroids'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'bronya_atlas',
    rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
-   blueprint_compat = false,
+   blueprint_compat = true,
    eternal_compat = true,
    perishable_compat = false,
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)
@@ -5492,7 +5593,7 @@ SMODS.Joker { --Kafka
    cost = 1,
    unlocked = true,
    discovered = true,
-   blueprint_compat = false,
+   blueprint_compat = true,
    eternal_compat = true,
    perishable_compat = false,
    in_pool = function(self, args)
@@ -5554,7 +5655,7 @@ SMODS.Joker { --Kafka
          return (calculateDOT(card, context))
       end
 
-      if context.discard and card.ability.extra.currentEidolon >= 2 and not context.blueprint and not context.joker_retrigger then
+      if context.discard and card.ability.extra.currentEidolon >= 2 and not context.blueprint and not context.retrigger_joker then
          for i, v in ipairs(G.hand.highlighted) do
             local cardInHand = G.hand.highlighted[i]
 
@@ -5652,6 +5753,13 @@ SMODS.Joker { --Kafka
    end,
 }
 
+SMODS.Atlas {
+   key = "gepard_atlas",
+   path = "gepard.png",
+   px = 71,
+   py = 95,
+}
+
 SMODS.Joker { --Gepard
    key = 'Gepard',
    config = {
@@ -5663,18 +5771,18 @@ SMODS.Joker { --Gepard
          'tank guy'
       },
    },
-   atlas = 'Jokers',
+   atlas = 'gepard_atlas',
    rarity = "hsr_5stars",
    cost = 1,
    unlocked = true,
    discovered = true,
-   blueprint_compat = false,
+   blueprint_compat = true,
    eternal_compat = true,
    perishable_compat = false,
    in_pool = function(self, args)
       return false
    end,
-   pos = { x = 1, y = 0 },
+   pos = { x = 0, y = 0 },
 
    update = function(self, card, dt)
       HDUpdate(card)

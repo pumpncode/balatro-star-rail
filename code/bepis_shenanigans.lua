@@ -1,6 +1,5 @@
 --Welcome to where I store ALL of my (maybe) useful functions!
 --Feel free to grab anything here :3
-
 BalatroSR.enhanceCard = function(_,other_card,enhancement,after,immediate,no_effects,haltunhighlight,effect_type) --Enhance cards.
     if not effect_type or effect_type == 1 then
         for _,othercard in ipairs(other_card) do
@@ -317,6 +316,7 @@ function removeParts(b,replace) --Remove certain parts of a string.
         "{s:",
         "{V:",
         "{E:",
+        "{B:"
     } 
 
     if type(b) == "string" then    
@@ -826,7 +826,7 @@ BalatroSR.vanillaSuitCheck = function(area) --Return (x,y,z,w) if area has respe
     return heart,club,spade,diamond
 end
 
-BalatroSR.numUniqueSuits = function(area,base) --Check how many unique suits are there in an area.
+BalatroSR.numUniqueSuits = function(area,base) --Check how many unique suits there are in an area.
     local registeredSuits = {}
 
     if base then
@@ -918,4 +918,28 @@ BalatroSR.decrease_rank = function(card,rank_increase,disable_loop_back) --Decre
     end
 
     BalatroSR.set_rank(card,new_rank)
+end
+
+BalatroSR.convert_to_hex = function(color) -- Converts RGB colors to HEX.
+	local hex = {}
+
+	for rgb in color:gmatch('%d+') do
+		table.insert(hex, ('%02X'):format(tonumber(rgb)))
+	end
+
+	return table.concat(hex)
+end
+
+BalatroSR.most_played_hand = function()
+    local tempplayed = 0
+    local hand
+    for k, v in pairs(G.GAME.hands) do
+        if v.played > tempplayed and v.visible then
+            tempplayed = v.played
+            hand = k
+        end
+    end
+    if hand then
+        return hand
+    end
 end

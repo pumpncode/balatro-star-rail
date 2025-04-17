@@ -10,7 +10,7 @@ local allFolders = {
 local allFiles = {
     --["none"] = {"animatedSprite"},
     ["none"] = {},
-    ["code"] = {"bepis_shenanigans", "worlds", "sounds", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
+    ["code"] = {"bepismodded", "bepis_shenanigans", "worlds", "sounds", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
 } --Same goes with this.
 
 local joker_to_main_mode = 2 
@@ -295,6 +295,9 @@ local hsrText = { --The core of EVERYTHING.
                     chip_to_mult_divide = 2,
                     text = "Bleed",
                 },
+                ["asriel_skill1_mark"] = {
+                    text = "Marked by Asriel"
+                },
             },
         },
         CharacterBuffs = {--[[All values here are automatically read by buffJoker (check jokers.lua):
@@ -521,7 +524,7 @@ local hsrText = { --The core of EVERYTHING.
             JingYuan = {
                 ["jy_e2"] = {
                     duration = 1,
-                    bee = 1.2,
+                    atk = 1.35,
                 },
                 ["jy_e4"] = {
                     permBuff = true,
@@ -1534,7 +1537,7 @@ BalatroSR.readBuffs = function(card)
         ["alike"] = {},
         ["text"] = {},
     } end
-        
+
     local relicBonus = BalatroSR.calculateRelics(card.ability.extra,nil,card.ability.extra.element,card)
     local ret = {
         ["atkMulti"] = 1 + (relicBonus["atkMulti"] - 1),
@@ -1807,7 +1810,7 @@ end
 
 G.FUNCS.hsr_gacha = function(e) --Function attached to Roll button of the Warp Tickets.
     local card = e.config.ref_table
-    ease_dollars(-card.config.center.cost)
+    ease_dollars((-card.config.center.cost*(G.GAME.discount_percent/100)))
 
     BalatroSR.hsr_gacha_roll(card)
 end
@@ -2077,7 +2080,7 @@ function Card:highlight(is_highlighted)
             }
         else
             self.children.use_button = UIBox {
-                definition = BalatroSR.create_sell_and_switch_buttons(self, {sell = true, to_joker = true}),
+                definition = BalatroSR.create_sell_and_switch_buttons(self, {to_joker = true}),
                 config = {
                     align = "cr",
                     offset = { x = -0.4, y = 0 },

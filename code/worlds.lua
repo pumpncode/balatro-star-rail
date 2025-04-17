@@ -1,3 +1,155 @@
+G.FUNCS.hsr_set_break_text = function(e) --Something.
+    local card = e.config.ref_table
+    e.config.text = "BREAK "..(card.ability.break_meter or 0).."%"
+end
+
+--[[
+local game_updateref = Game.update
+function Game.update(self, dt)
+    --Horizontal Test
+    G.hand.cards[1].ability.break_meter = 0
+    G.test_hsr = UIBox {
+        definition = {
+            n = G.UIT.ROOT,
+            config = {
+                align = "cm",
+                minw = 1,
+                minh = 0.3,
+                padding = 0.15,
+                r = 0.1,
+                colour = G.C.CLEAR
+            },
+            nodes = {
+                {
+                    n = G.UIT.C,
+                    config = {align = "cr", maxw = 2, padding = 0.1, r = 0.08, minw = 2, minh = 0, hover = true, shadow = true, colour = G.C.CLEAR},
+                    nodes = {
+                        create_progress_bar({label = "BREAK", label_scale = 0.5, w = 2, h = 0.3, text_scale = 0.2, ref_table = G.hand.cards[1].ability, ref_value = 'break_meter', min = 0, max = 100})
+                    }
+                },
+    
+            }
+        },
+        config = {
+            align = "tr",
+            offset = { x = -2.5, y = 0.3 },
+            major = G.hand.cards[1],
+            bond = 'Strong'
+        }
+    }
+
+    --Vertical test
+    G.hand.cards[1].ability.break_meter = 50
+        G.test_hsr = UIBox {
+        definition = {
+            n = G.UIT.ROOT,
+            config = {
+                align = "cm",
+                minw = 1,
+                minh = 0.3,
+                padding = 0.15,
+                r = 0.1,
+                colour = G.C.CLEAR
+            },
+            nodes = {
+                {
+                    n = G.UIT.C,
+                    config = {align = "cr", maxw = 2, padding = 0.1, r = 0.08, minw = 2, minh = 0, hover = true, shadow = true, colour = G.C.CLEAR},
+                    nodes = {
+                        create_progress_bar({label_position = "Top", colour = HEX("70a2ff"), bg_colour = HEX("fff370"), bar_rotation = "Horizontal", label = "BREAK", label_scale = 0.5, w = 2, h = 0.3, text_scale = 0.2, ref_table = G.hand.cards[1].ability, ref_value = 'break_meter', min = 0, max = 100})
+                    }
+                },
+    
+            }
+        },
+        config = {
+            align = "tr",
+            offset = { x = -2.5, y = 0.3 },
+            major = G.hand.cards[1],
+            bond = 'Strong'
+        }
+    }
+end
+]]
+
+--[[
+G.hand.cards[1].ability.break_meter = 0
+    G.hand.cards[1].hsr_break_progress_bar = UIBox {
+        definition = {
+            n = G.UIT.ROOT,
+            config = {
+                align = "cm",
+                minw = 1,
+                minh = 0.3,
+                padding = 0.15,
+                r = 0.1,
+                colour = G.C.CLEAR
+            },
+            nodes = {
+                {
+                    n = G.UIT.C,
+                    config = { ref_table = card, align = "cr", maxw = 2, padding = 0.1, r = 0.08, minw = 2, minh = 0, hover = true, shadow = true, colour = G.C.CLEAR},
+                    nodes = {
+                        create_progress_bar({label = "BREAK", label_scale = 0.7, w = 2, h = 0.3, text_scale = 0.2, ref_table = G.hand.cards[1].ability, ref_value = 'break_meter', min = 0, max = 100})
+                    }
+                },
+    
+            }
+        },
+        config = {
+            align = "tr",
+            offset = { x = -2.5, y = 0.3 },
+            major = G.hand.cards[1],
+            bond = 'Strong'
+        }
+    }
+    
+G.hand.cards[1].hsr_break_ui_text = UIBox {
+    definition = {
+        n = G.UIT.ROOT,
+        config = {
+            align = "cm",
+            minw = 1,
+            minh = 0.3,
+            padding = 0.15,
+            r = 0.1,
+            colour = G.C.CLEAR
+        },
+        nodes = {
+            {
+                n = G.UIT.C,
+                config = { ref_table = card, align = "cr", maxw = 2, padding = 0.1, r = 0.08, minw = 2, minh = 0, hover = true, shadow = true, colour = G.C.CLEAR},
+                nodes = {
+                    { n = G.UIT.B, config = { w = 0.1, h = 0.6 } },
+                    {
+                        n = G.UIT.C,
+                        config = { align = "tm" },
+                        nodes = {
+                            {
+                                n = G.UIT.R,
+                                config = { align = "cm", maxw = 1.25 },
+                                nodes = {
+                                    { n = G.UIT.T, config = {colour = G.C.UI.TEXT_LIGHT, scale = 1, shadow = true, text = 'BREAK '}},
+                                    { n = G.UIT.T, config = {colour = G.C.UI.TEXT_LIGHT, scale = 1, shadow = true, ref_table = G.hand.cards[1].ability, ref_value = 'break_meter'}},
+                                    { n = G.UIT.T, config = {colour = G.C.UI.TEXT_LIGHT, scale = 1, shadow = true, text = '%'}},
+                                }
+                            },
+                        }
+                    }
+                }
+            },
+
+        }
+    },
+    config = {
+        align = "tr",
+        offset = { x = -2.5, y = 0.5 },
+        major = G.hand.cards[1],
+        bond = 'Strong'
+    }
+} 
+]]
+
 hsr_worlds = {
     "Belobog", --"Xianzhou"
 }
@@ -6,9 +158,11 @@ hsr_worlds_boss_blinds = {
     --["Xianzhou"] = {"bl_hsr_Cocolia","bl_hsr_Svarog"},
 }
 hsr_worlds_small_blinds = {
-    ["Belobog"] = {"bl_hsr_Frostspawn", "bl_hsr_Flamespawn"}
+    ["Belobog"] = {"bl_hsr_Frostspawn", "bl_hsr_Flamespawn", "bl_hsr_Thunderspawn", "bl_hsr_Windspawn"}
 }
-hsr_worlds_big_blinds = {}
+hsr_worlds_big_blinds = {
+    ["Belobog"] = {"bl_hsr_A_Direwolf"}
+}
 hsr_chance_to_small_blind = 4
 hsr_chance_to_big_blind = 4
 
@@ -499,7 +653,7 @@ function create_UIBox_blind_choice(type, run_info) --Add another button to Boss 
     end
 
     if type == "Boss" then
-        G.E_MANAGER:add_event(Event({ --Clearing the snow particles
+        G.E_MANAGER:add_event(Event({
             trigger = 'immediate',
             func = function()
                 repeat until G.blind_select and G.blind_select_opts.boss
@@ -573,12 +727,12 @@ end
 
 local hookTo = create_UIBox_blind_select
 function create_UIBox_blind_select() --Randomizing world after Showdown boss is beaten, the timing is when you enter the Blind selection screen.
-    local ret = hookTo()
-
     if G.GAME.hsr_reroll_world then
         G.GAME.hsr_reroll_world = false
         randomize_hsr_world()
     end
+
+    local ret = hookTo()
  
     return ret
 end

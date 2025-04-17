@@ -352,6 +352,19 @@ for i = 1,#bodyParts do
                 end
             }))
         end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
+        end,
     }
 end
 ----------Thief of Shooting Meteor---------------
@@ -416,6 +429,19 @@ for i = 1,#bodyParts do
                     return true
                 end
             }))
+        end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
         end,
     }
 end
@@ -484,6 +510,19 @@ for i = 1,#bodyParts do
                     return true
                 end
             }))
+        end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
         end,
     }
 end
@@ -554,6 +593,19 @@ for i = 1,#bodyParts do
                 end
             }))
         end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
+        end,
     }
 end
 ----------Hunter of Glacial Forest---------------
@@ -622,6 +674,19 @@ for i = 1,#bodyParts do
                     return true
                 end
             }))
+        end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
         end,
     }
 end
@@ -693,6 +758,19 @@ for i = 1,#bodyParts do
                 end
             }))
         end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
+        end,
     }
 end
 ----------Champion of Streetwise Boxing----------
@@ -762,6 +840,19 @@ for i = 1,#bodyParts do
                 end
             }))
         end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
+        end,
     }
 end
 ----------Firesmith of Lava-Forging---------------
@@ -830,6 +921,19 @@ for i = 1,#bodyParts do
                     return true
                 end
             }))
+        end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
         end,
     }
 end
@@ -901,6 +1005,19 @@ for i = 1,#bodyParts do
                 end
             }))
         end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
+        end,
     }
 end
 ----------Wastelander of Banditry Desert-----------
@@ -971,6 +1088,19 @@ for i = 1,#bodyParts do
                 end
             }))
         end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
+        end,
     }
 end
 ----------Knight of Purity Palace-------------------
@@ -1040,6 +1170,19 @@ for i = 1,#bodyParts do
                 end
             }))
         end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
+        end,
     }
 end
 ----------Guard of Wuthering Snow--------------------
@@ -1108,6 +1251,19 @@ for i = 1,#bodyParts do
                     return true
                 end
             }))
+        end,
+
+        calculate = function(self,card,context)
+            if (context.ending_shop or context.end_of_round) and context.main_eval then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.1,
+                    func = function()
+                        card:start_dissolve()
+                        return true
+                    end
+                }))
+            end
         end,
     }
 end

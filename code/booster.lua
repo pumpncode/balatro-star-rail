@@ -8,18 +8,25 @@ SMODS.Atlas{
 SMODS.Booster({
     key = 'relics',
     loc_txt = {
-        name = 'Relic Booster Pack',
+        name = 'Relics Pack',
         group_name = 'relics',
         text = {
-            'Contains Relics',
-            'Grants many benefits when equipped'
+            'Choose {C:attention}#2#{} of up to',
+            '{C:attention}#1#{} Relic pieces',
+            '{s:0.3} {}',
+            '{s:0.8,C:inactive}With Jimbo\'s scientific breakthrough,',
+            '{s:0.8,C:inactive}some jokers can now wear powerful',
+            '{s:0.8,C:inactive}clothing pieces to power themselves up!',
         }
     },
+    loc_vars = function(self,info_queue,card)
+        return{vars = {card.ability.extra,card.ability.choose}}
+    end,
     atlas = 'boosters',
     group_key = 'hsr_relic_pack',
     pos = { x = 0, y = 5 },
-    config = {extra = 4, choose = 2},
-    weight = 5,
+    config = {extra = 6, choose = 2},
+    weight = 7,
     cost = 5,
     draw_hand = false,
     discovered = true,  

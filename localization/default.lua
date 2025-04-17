@@ -135,6 +135,53 @@ return { --remind me to work on this
                    '[{C:red}-40%{}] {C:hsr_fire}Fire{}',
                 }
             },
+            --Thunderspawn
+            psv_hsr_Thunderspawn_ER = {
+                name = 'Elemental Resistance',
+                text = {
+                   '[{C:red}-20%{}] {C:hsr_ice}Ice{}, {C:hsr_fire}Fire{}, {C:hsr_quantum}Quantum{}, {C:hsr_imaginary}Imaginary{}',
+                   '[{C:red}-40%{}] {C:hsr_lightning}Lightning{}',
+                }
+            },
+            --Windspawn
+            psv_hsr_Windspawn_ER = {
+                name = 'Elemental Resistance',
+                text = {
+                   '[{C:red}-20%{}] {C:hsr_ice}Ice{}, {C:hsr_physical}Physical{}, {C:hsr_quantum}Quantum{}, {C:hsr_imaginary}Imaginary{}',
+                   '[{C:red}-40%{}] {C:hsr_wind}Wind{}',
+                }
+            },
+            --Automaton Direwolf
+            psv_hsr_A_Direwolf_ER = {
+                name = 'Elemental Resistance',
+                text = {
+                   '[{C:red}-20%{}] {C:hsr_fire}Fire{}, {C:hsr_physical}Physical{}, {C:hsr_quantum}Quantum{}, {C:hsr_wind}Wind{}',
+                }
+            },
+            psv_hsr_A_Direwolf_passive1 = {
+                name = 'Dismantle',
+                text = {
+                   '{E:2,C:red}Destroys{} scoring hand if hand score',
+                   'is {C:attention}above{} 50% of score requirement',
+                }
+            },
+            psv_hsr_A_Direwolf_passive2 = {
+                name = 'Lock On Target',
+                text = {
+                   'If played hand is {C:attention}High Card{},',
+                   'replaces this passive with {C:attention}Felling Order{}',
+                }
+            },
+            psv_hsr_A_Direwolf_passive2_1 = {
+                name = '{C:red}Felling Order{}',
+                text = {
+                   'After each hand, {E:2,C:red}destroys{} 3',
+                   'random cards in hand. If hand then',
+                   'has no cards, {E:2,C:red}destroys{} a',
+                   'random Joker',
+                }
+            },
+            --Others
             psv_hsr_Showdown = {
                 name = 'Final Showdown',
                 text = {
@@ -677,18 +724,18 @@ return { --remind me to work on this
                     "When hand is played, each card with unique {C:attention}Rank{} increases {C:attention}Hit-per-action{} by 1 (up to 10),", 
                     "then triggers {E:2,C:attention}Follow-up Effect{}",
                     "{C:inactive}[Follow-up Effect, Attack]{} For each {C:attention}Hit-per-action{}, a random card in hand",
-                    "and its adjacent cards give {C:mult}+5{} Mult, as well as additional effects depending on their {C:attention}Enhancement{}:",
-                    "{s:0.8,C:inactive}[Lucky Card] There is a fixed 50% chance to give {}{s:0.8,C:white,X:mult}X1.2{}{s:0.8,C:inactive} Mult{}",
-                    "{s:0.8,C:inactive}[Mult Card] {}{s:0.8,C:white,X:mult}X1.1{}{s:0.8,C:inactive} Mult{}",
-                    "{s:0.8,C:inactive}[Glass Card] {}{s:0.8,C:white,X:chips}X1.5{}{s:0.8,C:inactive} Chips, then destroy itself{}",
+                    "and its adjacent cards give {C:mult}+25{} Mult, as well as additional effects depending on their {C:attention}Enhancement{}:",
+                    "{s:0.8,C:inactive}[Lucky Card] There is a fixed 50% chance to give {}{s:0.8,C:white,X:mult}X2{}{s:0.8,C:inactive} Mult{}",
+                    "{s:0.8,C:inactive}[Mult Card] {}{s:0.8,C:white,X:mult}X1.5{}{s:0.8,C:inactive} Mult{}",
+                    "{s:0.8,C:inactive}[Glass Card] {}{s:0.8,C:white,X:chips}X2{}{s:0.8,C:inactive} Chips, then destroy itself{}",
                     "{E:2,C:red}Resets Hit-per-action to 0 when hand is played{}",
                 }
             },
             ["j_hsr_JingYuan2"] = {
                 name = "Jing Yuan",
                 text = {
-                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}Adjacent cards give 25% more Mult/Chips from {}{C:attention,E:2,s:0.7}Follow-up Effect{}",
-                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}After using {}{C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7}, increases {}{C:attention,s:0.7}Basic Effect Efficiency{}{s:0.7} by 20% for 1 turn{}",
+                    '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}Adjacent cards give 25% more {C:mult,s:0.7}Mult{}/{C:chips,s:0.7}Chips{}{s:0.7} from {}{C:attention,E:2,s:0.7}Follow-up Effect{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}After using {}{C:attention,E:2,s:0.7}Follow-up Effect{}{s:0.7}, increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 35% for 1 turn{}",
                     '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Begins at 2 {}{C:attention,s:0.7}Hit-per-action{}{s:0.7} instead of 0 each hand{}',
                     '{C:inactive,s:0.8}(Eidolon 4){}'.." {s:0.7}When {}{E:2,C:attention,s:0.7}Follow-up Effect{}{s:0.7} is triggered, each {}{C:attention,s:0.7}Hit-per-action{}{s:0.7} increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 2%{}{}",
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 15%{}',
@@ -772,7 +819,7 @@ return { --remind me to work on this
                 name = "Sushang",
                 text = {
                     '{C:inactive,s:0.8}(Eidolon 1){}'.." {s:0.7}When {}{C:attention,E:2,s:0.7}Attack{}{s:0.7} breaks a card, increases {}{C:attention,s:0.7}SPD{}{s:0.7} by 25 for 1 turn, up to 4 times{}",
-                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When {}{C:attention,E:2,s:0.7}Attack{}{s:0.7} triggers {C:attention,s:0.7}Bleed{}{C:inactive,s:0.7}, increases {C:attention,s:0.7}ATK{}{s:0.7} by 20% for 1 turn{}",
+                    '{C:inactive,s:0.8}(Eidolon 2){}'.." {s:0.7}When {}{C:attention,E:2,s:0.7}Attack{}{s:0.7} triggers {C:attention,s:0.7}Bleed{}{s:0.7}, increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 20% for 1 turn{}",
                     '{C:inactive,s:0.8}(Eidolon 3){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 5%{}',
                     '{C:inactive,s:0.8}(Eidolon 4){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 40%{}',
                     '{C:inactive,s:0.8}(Eidolon 5){}'..' {s:0.7}Increases {}{C:attention,s:0.7}ATK{}{s:0.7} by 7%{}',
@@ -973,6 +1020,9 @@ return { --remind me to work on this
             hsr_svarog_engage = "Engage.",
             hsr_cocolia_summon = "Collapse!",
             hsr_cocolia_nuke = "Last Choir of Genesis!",
+            hsr_a_direwolf1 = "Vbhhhrrrrrr", --Tsutje
+            hsr_a_direwolf2 = "*inserts chainsaw sound", --aikoyori
+            hsr_a_direwolf3 = "*saws", --also aikoyori
 
             k_hsr_3stars = "3-Stars",
             k_hsr_4stars = "4-Stars",
