@@ -1810,7 +1810,7 @@ end
 
 G.FUNCS.hsr_gacha = function(e) --Function attached to Roll button of the Warp Tickets.
     local card = e.config.ref_table
-    ease_dollars((-card.config.center.cost*(G.GAME.discount_percent/100)))
+    ease_dollars((-card.config.center.cost*((100 - G.GAME.discount_percent)/100)))
 
     BalatroSR.hsr_gacha_roll(card)
 end
