@@ -4976,7 +4976,7 @@ SMODS.Joker { --Jing Yuan
 
                card_eval_status_text(card, 'extra', nil, nil, nil, { message = localize("hsr_jingyuan_message") })
 
-               for _, cardInHand in ipairs(radCard) do
+               for _, cardInHand in ipairs(radCard or {}) do
                   local jy_Mult = 25
                   local jy_xMult = 1
                   local jy_xChips = 1
