@@ -1,0 +1,18 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 1
+
+[[patches]] 
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''{
+            label = localize('b_vouchers'),
+            tab_definition_function = G.UIDEF.used_vouchers,
+        },'''
+position = 'after'
+payload = '''{
+            label = localize("hsr_level_text"),
+            tab_definition_function = G.UIDEF.skill_tree_progress,
+        },'''
+match_indent = true

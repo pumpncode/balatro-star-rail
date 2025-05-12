@@ -1765,7 +1765,6 @@ SMODS.Atlas {
    px = 90,               --width of one card
    py = 96                -- height of one card
 }
-
 ---3-Star
 SMODS.Atlas {
    key = "trash_atlas",

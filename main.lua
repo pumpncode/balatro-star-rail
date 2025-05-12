@@ -10,12 +10,14 @@ local allFolders = {
 local allFiles = {
     --["none"] = {"animatedSprite"},
     ["none"] = {},
-    ["code"] = {"bepismodded", "bepis_shenanigans", "worlds", "sounds", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds"},
+    ["code"] = {"bepismodded", "bepis_shenanigans", "worlds", "sounds", "rarity", "stickers", "jokers", "warptickets", "blinds", "relics", "booster", "keybinds", "ui"},
 } --Same goes with this.
 
 local joker_to_main_mode = 2 
 --Mode 1: Normal mode, add Joker to the Joker area, which will be consumed after shop.
 --Mode 2: Experimental mode, Joker in Joker area immediately consumes added jokers if possible for Eidolon. 
+
+--Note to self: G.pack_cards is the cardarea in packs.
 
 local hsrText = { --The core of EVERYTHING.
     RelicSetEffects = {
@@ -1521,6 +1523,8 @@ BalatroSR.calculateRelics = function(extraStuff, additionalConditions, element, 
     }
 end
 
+get_skill_info = get_skill_info or function(x) return {} end
+
 BalatroSR.readBuffs = function(card)
     if not card.ability.extra then return {
         ["atkMulti"] = 0,
@@ -1598,6 +1602,28 @@ BalatroSR.readBuffs = function(card)
                         end
                     end                 
                 end
+            end
+        end
+    end
+
+    for i,v in pairs(G.PROFILES[G.SETTINGS.profile].skill_perks or {}) do
+        local info = get_skill_info(i)
+        for i2,_ in pairs(ret) do
+            if i2 == "mult" or i2 == "chip" or i2 == "eav" or i2 == "speed" or i2 == "cooldownRegenBonus" then
+                ret[i2] = ret[i2] + (((info["buff"] or {})["j_"..i2] or 0) * v) 
+            elseif i2 ~= "alike" and i2 ~= "text" then
+                ret[i2] = ret[i2] + (((info["buff"] or {})["j_"..i2] or 0) * v) 
+            end
+        end
+    end
+
+     for i,v in pairs(G.GAME.skill_perks or {}) do
+        local info = get_skill_info(i)
+        for i2,_ in pairs(ret) do
+            if i2 == "mult" or i2 == "chip" or i2 == "eav" or i2 == "speed" or i2 == "cooldownRegenBonus" then
+                ret[i2] = ret[i2] + (((info["buff"] or {})["j_"..i2] or 0) * v) 
+            elseif i2 ~= "alike" and i2 ~= "text" then
+                ret[i2] = ret[i2] + (((info["buff"] or {})["j_"..i2] or 0) * v) 
             end
         end
     end

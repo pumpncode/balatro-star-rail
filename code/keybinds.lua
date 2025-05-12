@@ -106,7 +106,7 @@ function hsr_left_page_switch(card)
             end
         end
     else
-        if not card.ability.extra then return end
+        if not card.ability.extra or type(card.ability.extra) == "number" then return end
         if card.config.center.key == "c_hsr_starrailspecialpass" then
             if not G.GAME.current_banner then
                 G.GAME.current_banner = 1

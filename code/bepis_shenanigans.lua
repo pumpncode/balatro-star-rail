@@ -930,16 +930,45 @@ BalatroSR.convert_to_hex = function(color) -- Converts RGB colors to HEX.
 	return table.concat(hex)
 end
 
-BalatroSR.most_played_hand = function()
+BalatroSR.most_played_hand = function(random_pick)
     local tempplayed = 0
-    local hand
+    local hand_list = {}
     for k, v in pairs(G.GAME.hands) do
-        if v.played > tempplayed and v.visible then
-            tempplayed = v.played
-            hand = k
+        if v.played >= tempplayed and v.visible then
+            if v.played > tempplayed then
+                tempplayed = v.played
+                hand_list = {}
+            end
+            hand_list[#hand_list+1] = {["name"] = k, ["config"] = v}
         end
     end
-    if hand then
-        return hand
+
+    if random_pick then
+        return pseudorandom_element(hand_list,pseudoseed("hsr_most_played_hand_pick"))
+    else
+        return hand_list
     end
+end
+
+BalatroSR.most_played_hand_planet_key = function(random_pick)
+    local keys = BalatroSR.most_played_hand(random_pick)
+    if random_pick then
+        for i,v in pairs(G.P_CENTER_POOLS.Planet) do
+            if v.config and v.config.hand_type and v.config.hand_type == keys["name"] then
+                return v.key
+            end
+        end
+        print("No planet cards were found for this hand.")
+        return false
+    end
+
+    local ret = {}
+    for _,v in pairs(keys) do
+        for i2,v2 in pairs(G.P_CENTER_POOLS.Planet) do
+            if v2.config and v2.config.hand_type and v2.config.hand_type == v["name"] then
+                ret[#ret+1] = v2.key
+            end
+        end
+    end
+    return ret
 end
