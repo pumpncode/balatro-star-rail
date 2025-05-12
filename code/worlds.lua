@@ -56,7 +56,7 @@ function Game.update(self, dt)
                     n = G.UIT.C,
                     config = {align = "cr", maxw = 2, padding = 0.1, r = 0.08, minw = 2, minh = 0, hover = true, shadow = true, colour = G.C.CLEAR},
                     nodes = {
-                        create_progress_bar({label_position = "Top", colour = HEX("70a2ff"), bg_colour = HEX("fff370"), bar_rotation = "Horizontal", label = "BREAK", label_scale = 0.5, w = 2, h = 0.3, text_scale = 0.2, ref_table = G.hand.cards[1].ability, ref_value = 'break_meter', min = 0, max = 100})
+                        create_progress_bar({label_position = "Top", bar_rotation = "Vertical", label = "BREAK", label_scale = 0.5, w = 0.3, h = 2, text_scale = 0.2, ref_table = G.hand.cards[1].ability, ref_value = 'break_meter', min = 0, max = 100})
                     }
                 },
     
@@ -65,7 +65,7 @@ function Game.update(self, dt)
         config = {
             align = "tr",
             offset = { x = -2.5, y = 0.3 },
-            major = G.hand.cards[1],
+            major = G.deck,
             bond = 'Strong'
         }
     }
@@ -163,8 +163,8 @@ hsr_worlds_small_blinds = {
 hsr_worlds_big_blinds = {
     ["Belobog"] = {"bl_hsr_A_Direwolf"}
 }
-hsr_chance_to_small_blind = 4
-hsr_chance_to_big_blind = 4
+hsr_chance_to_small_blind = 6
+hsr_chance_to_big_blind = 6
 
 function set_hsr_world(world)
     G.GAME.hsr_world = world
@@ -563,7 +563,7 @@ function end_round() --Reroll world when Showdown Boss Blind is defeated.
         G.GAME.round_resets.blind = (G.GAME.round_resets.blind.config.extra.hsr_blindType == "Small" and G.P_BLINDS.bl_small) or (G.GAME.round_resets.blind.config.extra.hsr_blindType == "Big" and G.P_BLINDS.bl_big)
     end
     local ret = hookTo()
-    if G.GAME and G.GAME.blind and G.GAME.blind.config and G.GAME.blind.config.blind and G.GAME.blind.config.blind.boss and G.GAME.blind.config.blind.boss.showdown then
+    if G.GAME and G.GAME.blind and G.GAME.blind.config and G.GAME.blind.config.blind and G.GAME.blind.config.blind.boss and G.GAME.blind.config.blind.boss.showdown and G.GAME.blind:get_type() == "Boss" then
         G.GAME.hsr_reroll_world = true
     end
 
@@ -655,9 +655,9 @@ function create_UIBox_blind_choice(type, run_info) --Add another button to Boss 
     if type == "Boss" then
         G.E_MANAGER:add_event(Event({
             trigger = 'immediate',
+            blocking = false,
             func = function()
-                repeat until G.blind_select and G.blind_select_opts.boss
-                if G.blind_select_opts.boss then
+                if G.blind_select_opts and G.blind_select_opts.boss then
                     local isShowdown = false
                     for i,v in pairs(G.P_BLINDS) do
                         if i == G.GAME.round_resets.blind_choices.Boss and v.boss.showdown then
@@ -716,8 +716,8 @@ function create_UIBox_blind_choice(type, run_info) --Add another button to Boss 
                             }
                         } 
                     end
+                    return true
                 end
-                return true
             end
         }))   
     end

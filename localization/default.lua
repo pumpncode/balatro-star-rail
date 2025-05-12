@@ -1003,7 +1003,7 @@ return { --remind me to work on this
                     "{C:inactive}per stack{}",
                 },
             },
-        }
+        },
     },
     misc={
         dictionary = {
@@ -1063,6 +1063,7 @@ return { --remind me to work on this
             hsr_current_keybind = "Current Keybind",
             hsr_gacha_show = "Gacha Results",
             hsr_gacha_shop = "Ticket Shop",
+            hsr_level_text = "Level",
             hsr_boss_switch1 = "SWITCH",
             hsr_boss_switch2 = "BOSS",
             hsr_buy = "ROLL",
@@ -1072,6 +1073,6 @@ return { --remind me to work on this
             hsr_turn_page_left = "Turn Left",
             hsr_turn_page_right = "Turn Right",
             hsr_interact_keybind = "Interact",
-        }
+        },
     },
 }

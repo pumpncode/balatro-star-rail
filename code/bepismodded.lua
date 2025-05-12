@@ -1,6 +1,7 @@
 --surprise surprise :3
 function G.FUNCS.progress_bar_h(e)
     local c = e.children[1]
+    if not c then return end
     local rt = c.config.ref_table
     local neww = (rt.ref_table[rt.ref_value] - rt.min)/(rt.max - rt.min)*rt.w
     if neww <= 0 then
@@ -11,13 +12,19 @@ function G.FUNCS.progress_bar_h(e)
     c.T.w = neww
     c.config.w = c.T.w
 
+    if e.config.ui_degree ~= 0 then
+        e.T.r = math.rad(e.config.ui_degree or 0)
+    end
+
     if rt.callback then G.FUNCS[rt.callback](rt) end 
 end
 
 function G.FUNCS.progress_bar_v(e)
     local c = e.children[1]
+    if not c then return end
     local rt = c.config.ref_table
     local newh = (rt.ref_table[rt.ref_value] - rt.min)/(rt.max - rt.min)*rt.h
+    
     if newh <= 0 then
         c.states.visible = false
     else
@@ -26,10 +33,14 @@ function G.FUNCS.progress_bar_v(e)
     c.T.h = newh
     c.config.h = c.T.h
 
+    if e.config.ui_degree ~= 0 then
+        e.T.r = math.rad(e.config.ui_degree or 0)
+    end
+
     if rt.callback then G.FUNCS[rt.callback](rt) end 
 end
 
-function G.FUNCS.test_rotate_ui(e)
+function G.FUNCS.pb_rotate_ui(e)
     e.T.r = math.rad(e.config.degree or 0)
 end
 
@@ -52,27 +63,29 @@ function create_progress_bar(args)
     args.bar_rotation = args.bar_rotation or "Horizontal" --Can be "Horizontal", "Vertical"
     args.w = args.w or ((args.bar_rotation == "Horizontal" and 1) or (args.bar_rotation == "Vertical" and 0.5))
     args.h = args.h or ((args.bar_rotation == "Horizontal" and 0.5) or (args.bar_rotation == "Vertical" and 1))
+
     args.label_degree = args.label_degree or 0
+    args.ui_degree = args.ui_degree or 0
 
     args.detailed_tooltip = args.detailed_tooltip or nil
     if not args.detailed_tooltip and args.detailed_tooltip_k then
         args.detailed_tooltip = {key = args.detailed_tooltip_k, set = args.detailed_tooltip_s or nil}
     end
-  
+
     local t = nil
     if args.bar_rotation == "Horizontal" then
-        local startval = args.w * (args.ref_table[args.ref_value] - args.min)/(args.max - args.min)
+        local startval = 0
         t = 
         {n=G.UIT.C, config={align = "cm", minw = args.w, minh = args.h, padding = 0.1, r = 0.1, colour = G.C.CLEAR, focus_args = {type = 'slider'}}, nodes={
-            {n=G.UIT.C, config={align = (args.reverse_fill and "cr") or "cl", detailed_tooltip = args.detailed_tooltip, tooltip = args.tooltip, minw = args.w, r = 0.1,minh = args.h, colour = args.bg_colour,emboss = 0.05,func = 'progress_bar_h', refresh_movement = true}, nodes={
+            {n=G.UIT.C, config={align = (args.reverse_fill and "cr") or "cl", ui_degree = args.ui_degree, detailed_tooltip = args.detailed_tooltip, tooltip = args.tooltip, minw = args.w, r = 0.1,minh = args.h, colour = args.bg_colour,emboss = 0.05,func = 'progress_bar_h', refresh_movement = true}, nodes={
               {n=G.UIT.B, config={w=startval,h=args.h, r = 0.1, colour = args.colour, ref_table = args, refresh_movement = true}},
             }},
         }}
     elseif args.bar_rotation == "Vertical" then
-        local startval = args.h * (args.ref_table[args.ref_value] - args.min)/(args.max - args.min)
+        local startval = 0
         t = 
         {n=G.UIT.C, config={align = "cm", minw = args.w, minh = args.h, padding = 0.1, r = 0.1, colour = G.C.CLEAR, focus_args = {type = 'slider'}}, nodes={
-            {n=G.UIT.C, config={align = (args.reverse_fill and "tm") or "bm", detailed_tooltip = args.detailed_tooltip, tooltip = args.tooltip, minw = args.w, r = 0.1,minh = args.h, colour = args.bg_colour,emboss = 0.05,func = 'progress_bar_v', refresh_movement = true}, nodes={
+            {n=G.UIT.C, config={align = (args.reverse_fill and "tm") or "bm", ui_degree = args.ui_degree, detailed_tooltip = args.detailed_tooltip, tooltip = args.tooltip, minw = args.w, r = 0.1,minh = args.h, colour = args.bg_colour,emboss = 0.05,func = 'progress_bar_v', refresh_movement = true}, nodes={
               {n=G.UIT.B, config={w=args.w,h=startval, r = 0.1, colour = args.colour, ref_table = args, refresh_movement = true}},
             }},
         }}
@@ -81,7 +94,7 @@ function create_progress_bar(args)
     if args.label then 
         if args.label_position == "Top" then
             local label_node = {n=G.UIT.R, config={align = "cm", padding = 0}, nodes={
-                {n=G.UIT.T, config={func = 'test_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
+                {n=G.UIT.T, config={func = 'pb_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
             }} 
 
             t = 
@@ -93,7 +106,7 @@ function create_progress_bar(args)
             }}
         elseif args.label_position == "Bottom" then
             local label_node = {n=G.UIT.R, config={align = "cm", padding = 0}, nodes={
-                {n=G.UIT.T, config={func = 'test_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
+                {n=G.UIT.T, config={func = 'pb_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
             }} 
 
             t = 
@@ -105,7 +118,7 @@ function create_progress_bar(args)
             }}
         elseif args.label_position == "Left" then
             local label_node = {n=G.UIT.C, config={align = "cm", padding = 0}, nodes={
-                {n=G.UIT.T, config={func = 'test_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
+                {n=G.UIT.T, config={func = 'pb_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
             }} 
 
             t = 
@@ -117,7 +130,7 @@ function create_progress_bar(args)
             }}
         elseif args.label_position == "Right" then
             local label_node = {n=G.UIT.C, config={align = "cm", padding = 0}, nodes={
-                {n=G.UIT.T, config={func = 'test_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
+                {n=G.UIT.T, config={func = 'pb_rotate_ui', degree = args.label_degree, text = args.label, scale = args.label_scale, colour = G.C.UI.TEXT_LIGHT, vert = args.label_vert}}
             }} 
 
             t = 
